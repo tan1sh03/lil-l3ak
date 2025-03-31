@@ -1,5 +1,75 @@
 // script.js - Final Optimized Version
 
+// GitHub integration for writeups
+const githubConfig = {
+  owner: 'LilL3ak',
+  repo: 'ctf-writeups',
+  branch: 'main',
+  writeupPath: 'writeups'
+};
+
+// Fetch writeups from GitHub
+async function fetchWriteupsFromGitHub() {
+  try {
+    // Fetch directory listing
+    const response = await fetch(
+      `https://api.github.com/repos/${githubConfig.owner}/${githubConfig.repo}/contents/${githubConfig.writeupPath}`
+    );
+    
+    if (!response.ok) throw new Error('Failed to fetch writeups directory');
+    
+    const files = await response.json();
+    const markdownFiles = files.filter(file => file.name.endsWith('.md'));
+    
+    // Process each markdown file
+    const writeups = await Promise.all(
+      markdownFiles.map(async file => {
+        const contentResponse = await fetch(file.download_url);
+        if (!contentResponse.ok) throw new Error(`Failed to fetch ${file.name}`);
+        
+        const content = await contentResponse.text();
+        // Extract frontmatter (simplified version)
+        const frontmatter = extractFrontmatter(content);
+        
+        return {
+          ...frontmatter,
+          filename: file.name,
+          path: file.path,
+          download_url: file.download_url
+        };
+      })
+    );
+    
+    return writeups;
+  } catch (error) {
+    console.error('Error fetching writeups:', error);
+    return [];
+  }
+}
+
+// Extract frontmatter from markdown content
+function extractFrontmatter(content) {
+  const frontmatterRegex = /^---\s*([\s\S]*?)\s*---/;
+  const match = content.match(frontmatterRegex);
+  
+  if (!match) return {};
+  
+  const frontmatterText = match[1];
+  const frontmatter = {};
+  
+  frontmatterText.split('\n').forEach(line => {
+    const [key, ...valueParts] = line.split(':');
+    if (key && valueParts.length) {
+      const value = valueParts.join(':').trim();
+      // Remove quotes if present
+      frontmatter[key.trim()] = value.replace(/^"(.*)"$/, '$1');
+    }
+  });
+  
+  return frontmatter;
+}
+
+
 /* ========================
    Generic Utility Functions
    ======================== */
@@ -28,33 +98,33 @@ const tableSystem = {
   },
 
   // Initialize all tables
-  init() {
+  async init() {
     for(const tableId in this.tables) {
       const config = this.tables[tableId];
-      this.setupTable(config);
+      await this.setupTable(config);
       this.initSorting(config);
       this.initSearch(config);
     }
   },
 
 
-   // Generic table setup
-   setupTable(config) {
-    const table = document.querySelector(config.selector);
+  // Generic table setup
+async setupTable(config) {
+  const table = document.querySelector(config.selector);
+  
+  // Add sort arrows structure
+  table.querySelectorAll('th').forEach((th, index) => {
+    th.innerHTML += `<span class="sort-arrow"></span>`;
+    th.dataset.column = index;
+  });
 
-    // Add sort arrows structure
-    table.querySelectorAll('th').forEach((th, index) => {
-      th.innerHTML += `<span class="sort-arrow"></span>`;
-      th.dataset.column = index;
-    });
-
-    // Initial population based on table type
-    if (config.selector === '.writeups-table') {
-      this.populateWriteups();
-    } else if (config.selector === '.scores-table') {
-      this.populateScores();
-    }
-  },
+  // Initial population based on table type
+  if (config.selector === '.writeups-table') {
+    await this.populateWriteups();
+  } else if (config.selector === '.scores-table') {
+    this.populateScores();
+  }
+},
 
    // Generic sorting handler
    initSorting(config) {
@@ -192,18 +262,20 @@ const tableSystem = {
   ],
 
  
-  populateWriteups() {
+  async populateWriteups() {
+    // Fetch writeups from GitHub
+    const writeups = await fetchWriteupsFromGitHub();
+    this.writeupsData = writeups;
+    
     const tbody = document.querySelector('.writeups-table tbody');
-  
-    tbody.innerHTML = this.writeupsData.map(writeup => `
+    
+    tbody.innerHTML = writeups.map(writeup => `
       <tr>
         <td>
-          <a href="/writeups/${writeup.challenge.toLowerCase().replace(/ /g, '-')}.html" class="challenge-link" target="_blank">
+          <a href="/writeups.html?file=${encodeURIComponent(writeup.filename)}" class="challenge-link">
             ${writeup.challenge}
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="link-icon" viewBox="0 0 24 24">
-              <path d="M12 6h-6a2 2 0 0 0 -2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-6"></path>
-              <path d="M11 13l9 -9"></path>
-              <path d="M15 4h5v5"></path>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" class="link-icon" viewBox="0 0 24 24">
+              <path d="M5 3c-1.093 0-2 .907-2 2v14c0 1.093.907 2 2 2h14c1.093 0 2-.907 2-2v-7h-2v7H5V5h7V3H5zm9 0v2h3.586l-9.293 9.293 1.414 1.414L19 6.414V10h2V3h-7z"/>
             </svg>
           </a>
         </td>
@@ -212,21 +284,16 @@ const tableSystem = {
         <td>${writeup.author}</td>
         <td>${formatDate(writeup.date)}</td>
       </tr>
-      `).join('');
-  }
-  
-  
+    `).join('');
+  } 
 };
 
 /* ========================
    Initialization
    ======================== */
-document.addEventListener('DOMContentLoaded', () => {
-  tableSystem.init();
-  
-  // Initialize theme toggle and other global functionality
-  // (Keep existing theme toggle and other code here)
-});
+   document.addEventListener('DOMContentLoaded', async () => {
+    await tableSystem.init();
+  });  
 
 // Team Member Modal Functionality
 document.addEventListener('DOMContentLoaded', function () {
