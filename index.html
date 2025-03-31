@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lil L3ak</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="script.js" defer></script>
+</head>
+
+<body>
+    <div class="container">
+        <!-- Main Content Area -->
+        <div class="main-content">
+            <!-- Header with Logo and Team Name -->
+            <header>
+                <div class="header-top">
+                    <div class="logo">
+                        <img src="Logo.png" alt="ctf-logo">
+                        <h1>Lil L3ak</h1>
+                    </div>
+                    <button id="theme-toggle" aria-label="Toggle dark mode">
+                        <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
+                        <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path
+                                d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41">
+                            </path>
+                            <circle cx="12" cy="12" r="5"></circle>
+                        </svg>
+                    </button>
+                    <button id="burger-menu" aria-label="Toggle menu">
+                        <div class="burger-line"></div>
+                        <div class="burger-line"></div>
+                        <div class="burger-line"></div>
+                    </button>
+                </div>
+                <!-- Navigation -->
+                <nav id="main-nav">
+                    <ul>
+                        <li><a href="#home" class="active" data-section="home">/ home</a></li>
+                        <li><a href="#team" data-section="team">/ team</a></li>
+                        <li><a href="#writeups" data-section="writeups">/ writeups</a></li>
+                        <li><a href="#scores" data-section="scores">/ scores</a></li>
+                        <li><a href="#join" data-section="join">/ join </a></li>
+                    </ul>
+                </nav>
+            </header>
+
+            <!-- Content Sections -->
+            <div class="content-wrapper">
+                <!-- Home Section -->
+                <section id="home" class="content-section active">
+                    <h2>Welcome to Lil L3ak</h2>
+                    <p>We are a competitive CTF team focused on cybersecurity challenges and competitions.</p>
+
+                    <div class="card">
+                        <h3>Latest Achievements</h3>
+                        <ul>
+                            <li>Ranked #42 in Global CTF Rankings</li>
+                            <li>1st Place at LocalCTF 2025</li>
+                            <li>Top 10 in HackerCTF Winter Edition</li>
+                        </ul>
+                    </div>
+
+                    <div class="card">
+                        <h3>Upcoming Events</h3>
+                        <ul>
+                            <li>April 10, 2025 - Internal Training Session</li>
+                            <li>April 15, 2025 - CyberDefenders CTF</li>
+                            <li>May 2, 2025 - Beginner's Workshop</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <!-- Team Section -->
+                <section id="team" class="content-section">
+                    <div class="container">
+                        <h2 class="section-title">Our Team</h2>
+                        <p class="section-description">Meet the skilled cybersecurity experts behind our CTF team.</p>
+
+                        <div class="team-grid">
+                            <!-- Team members will be dynamically inserted here by JavaScript -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Writeups Section -->
+                <section id="writeups" class="content-section">
+                    <div class="writeups-section">
+                        <h2>CTF Writeups</h2>
+                        <p>Explore detailed writeups of challenges by our Lil L3akers during various CTF
+                            competitions. </p>
+                        <div class="writeups-controls">
+                            <div class="search-container">
+                                <input type="text" class="search-input" placeholder="Search writeups...">
+                                <button type="submit" class="search-button">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round">
+                                        <circle cx="11" cy="11" r="8"></circle>
+                                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="writeups-table-wrapper">
+                            <table class="writeups-table">
+                                <thead>
+                                    <tr>
+                                        <th>Challenge Name <span class="sort-arrow">▲</span></th>
+                                        <th>CTF Event <span class="sort-arrow">▲</span></th>
+                                        <th>Category <span class="sort-arrow">▲</span></th>
+                                        <th>Author <span class="sort-arrow">▲</span></th>
+                                        <th>Date <span class="sort-arrow">▲</span></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Table rows will be populated by JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Scores Section -->
+                <section id="scores" class="content-section">
+                    <div class="container">
+                        <h2 class="section-title">Competition Scores</h2>
+                        <p class="section-description">Our performance in recent CTF competitions.</p>
+
+                        <!-- Update your HTML for the search bar -->
+                        <div class="scores-controls">
+                            <div class="search-container">
+                                <input type="text" class="search-input" placeholder="Search competitions...">
+                                <button type="submit" class="search-button">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round">
+                                        <circle cx="11" cy="11" r="8"></circle>
+                                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                        <!-- Scores Table -->
+                        <div class="scores-table-wrapper">
+                            <table class="scores-table">
+                                <thead>
+                                    <tr>
+                                        <th>Competition <span class="sort-arrow" data-sort="competition">▲</span></th>
+                                        <th>Date <span class="sort-arrow" data-sort="date">▲</span></th>
+                                        <th>Rank <span class="sort-arrow" data-sort="rank">▲</span></th>
+                                        <th>Score <span class="sort-arrow" data-sort="score">▲</span></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="scores-body">
+                                    <!-- Rows will be dynamically inserted -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Join Team Section -->
+                <section id="join" class="content-section">
+                    <h2>Join LosFuzzys</h2>
+                    <p>Interested in joining our CTF team? Here's how to get started!</p>
+
+                    <div class="card">
+                        <h3>Requirements</h3>
+                        <ul>
+                            <li>Interest in cybersecurity and CTF competitions</li>
+                            <li>Willingness to learn and collaborate</li>
+                            <li>Any skill level is welcome - we have beginner trainings!</li>
+                        </ul>
+                    </div>
+
+                    <div class="card">
+                        <h3>How to Join</h3>
+                        <p>Our meetings and trainings are open to everyone. Feel free to join our Discord server to get
+                            started!</p>
+                        <a href="#" class="button">Join Our Discord</a>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Footer -->
+
+            <footer>
+                <div class="footer-content">
+                    <div class="social-icons">
+                        <a href="#" aria-label="Discord"><svg class="icon-discord" viewBox="0 0 24 24"></svg></a>
+                        <a href="#" aria-label="Instagram"><svg class="icon-instagram" viewBox="0 0 24 24"></svg></a>
+                        <a href="#" aria-label="CTFtime"><svg class="icon-ctftime" viewBox="0 0 24 24"></svg></a>
+                        <a href="#" aria-label="X"><svg class="icon-x" viewBox="0 0 24 24"></svg></a>
+                    </div>
+                </div>
+            </footer>
+        </div>
+    </div>
+</body>
+
+</html>
