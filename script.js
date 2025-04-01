@@ -7,6 +7,7 @@ const githubConfig = {
   writeupPath: 'writeups'
 };
 
+<<<<<<< HEAD
 function extractFrontmatter(content) {
   const frontmatterRegex = /^---\s*([\s\S]*?)\s*---/;
   const match = content.match(frontmatterRegex);
@@ -20,6 +21,18 @@ function extractFrontmatter(content) {
   const frontmatter = {};
 
   // Parse each line of the frontmatter
+=======
+// Extract frontmatter from markdown content
+function extractFrontmatter(content) {
+  const frontmatterRegex = /^---\s*([\s\S]*?)\s*---/;
+  const match = content.match(frontmatterRegex);
+  
+  if (!match) return {};
+  
+  const frontmatterText = match[1];
+  const frontmatter = {};
+  
+>>>>>>> d25234fdadc6413511dbffd1d1032f71f66f4a17
   frontmatterText.split('\n').forEach(line => {
     const [key, ...valueParts] = line.split(':');
     if (key && valueParts.length) {
@@ -28,7 +41,11 @@ function extractFrontmatter(content) {
       frontmatter[key.trim()] = value.replace(/^"(.*)"$/, '$1');
     }
   });
+<<<<<<< HEAD
 
+=======
+  
+>>>>>>> d25234fdadc6413511dbffd1d1032f71f66f4a17
   return frontmatter;
 }
 
