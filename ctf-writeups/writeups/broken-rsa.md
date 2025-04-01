@@ -14,4 +14,5 @@ This challenge involved manipulating browser cookies to bypass authentication.
 ## Solution
 First, I examined the cookies using browser developer tools...
 
-![Exploit Diagram](https://raw.githubusercontent.com/LilL3ak/ctf-writeups/main/images/cookie-monster-exploit.png)
+
+![image](https://github.com/user-attachments/assets/ac6f08d0-aeb6-40ad-9181-97671d1ef889)
