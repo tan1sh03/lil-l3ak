@@ -24,9 +24,7 @@ async function fetchWriteupsFromGitHub() {
     }
     
     const files = await response.json();
-    console.log('API Response:', await response.clone().json());
     console.log('Files found:', files.length);
-
     
     const markdownFiles = files.filter(file => file.name.endsWith('.md'));
     console.log('Markdown files found:', markdownFiles.length);
@@ -64,11 +62,8 @@ async function fetchWriteupsFromGitHub() {
 function extractFrontmatter(content) {
   const frontmatterRegex = /^---\s*([\s\S]*?)\s*---/;
   const match = content.match(frontmatterRegex);
-
-  if (!match) {
-    console.warn('No frontmatter found in content.');
-    return {};
-  }
+  
+  if (!match) return {};
   
   const frontmatterText = match[1];
   const frontmatter = {};
@@ -137,11 +132,7 @@ async setupTable(config) {
   
   // Initial population based on table type
   if (config.selector === '.writeups-table') {
-    try {
-      await this.populateWriteups();
-    } catch (error) {
-      console.error('Error populating writeups table:', error);
-    }
+    await this.populateWriteups();
   } else if (config.selector === '.scores-table') {
     this.populateScores();
   }
@@ -283,11 +274,12 @@ async setupTable(config) {
     }
   ],
 
+ 
   async populateWriteups() {
     // Fetch writeups from GitHub
     const writeups = await fetchWriteupsFromGitHub();
     if (writeups.length === 0) {
-      console.warn('No writeups found or error fetching from GitHub. Check API response and directory structure.');
+      console.warn('No writeups found or error fetching from GitHub.');
       return;
     }
     
@@ -616,4 +608,3 @@ const logoImg = document.querySelector('.logo img');
 if (logoImg) {
     logoImg.replaceWith(logoSvg);
 }
-
