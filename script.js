@@ -1,191 +1,168 @@
-// script.js - Final Optimized Version
+// script.js - Updated Version
 
-// GitHub integration for writeups
-const githubConfig = {
-  owner: 'LilL3ak',
-  repo: 'ctf-writeups',
-  branch: 'main',
-  writeupPath: 'writeups'
-};
-
-// Fetch writeups from GitHub
-async function fetchWriteupsFromGitHub() {
-  try {
-    // Fetch directory listing
-    const response = await fetch(
-      `https://api.github.com/repos/${githubConfig.owner}/${githubConfig.repo}/contents/${githubConfig.writeupPath}`
-    );
-    
-    if (!response.ok) throw new Error('Failed to fetch writeups directory');
-    
-    const files = await response.json();
-    const markdownFiles = files.filter(file => file.name.endsWith('.md'));
-    
-    // Process each markdown file
-    const writeups = await Promise.all(
-      markdownFiles.map(async file => {
-        const contentResponse = await fetch(file.download_url);
-        if (!contentResponse.ok) throw new Error(`Failed to fetch ${file.name}`);
-        
-        const content = await contentResponse.text();
-        // Extract frontmatter (simplified version)
-        const frontmatter = extractFrontmatter(content);
-        
-        return {
-          ...frontmatter,
-          filename: file.name,
-          path: file.path,
-          download_url: file.download_url
-        };
-      })
-    );
-    
-    return writeups;
-  } catch (error) {
-    console.error('Error fetching writeups:', error);
-    return [];
-  }
-}
-
-// Extract frontmatter from markdown content
-function extractFrontmatter(content) {
-  const frontmatterRegex = /^---\s*([\s\S]*?)\s*---/;
-  const match = content.match(frontmatterRegex);
+/* ========================
+   GitHub Integration for Writeups
+   ======================== */
+   const githubConfig = {
+    owner: 'tan1sh03',
+    repo: 'lil-l3ak',
+    branch: 'main',
+    writeupPath: 'writeups'
+  };
   
-  if (!match) return {};
+  // Fetch writeups from GitHub
+  async function fetchWriteupsFromGitHub() {
+    try {
+      // Fetch directory listing
+      const response = await fetch(
+        `https://api.github.com/repos/${githubConfig.owner}/${githubConfig.repo}/contents/${githubConfig.writeupPath}`
+      );
   
-  const frontmatterText = match[1];
-  const frontmatter = {};
+      if (!response.ok) throw new Error('Failed to fetch writeups directory');
   
-  frontmatterText.split('\n').forEach(line => {
-    const [key, ...valueParts] = line.split(':');
-    if (key && valueParts.length) {
-      const value = valueParts.join(':').trim();
-      // Remove quotes if present
-      frontmatter[key.trim()] = value.replace(/^"(.*)"$/, '$1');
+      const files = await response.json();
+      const markdownFiles = files.filter(file => file.name.endsWith('.md'));
+  
+      // Process each markdown file
+      const writeups = await Promise.all(
+        markdownFiles.map(async file => {
+          const contentResponse = await fetch(file.download_url);
+          if (!contentResponse.ok) throw new Error(`Failed to fetch ${file.name}`);
+  
+          const content = await contentResponse.text();
+          const frontmatter = extractFrontmatter(content);
+  
+          return {
+            ...frontmatter,
+            filename: file.name,
+            path: file.path,
+            download_url: file.download_url
+          };
+        })
+      );
+  
+      return writeups;
+    } catch (error) {
+      console.error('Error fetching writeups:', error);
+      return [];
     }
-  });
+  }
   
-  return frontmatter;
-}
-
-
-/* ========================
-   Generic Utility Functions
-   ======================== */
-const formatDate = (dateString) => {
-  const [year, month, day] = dateString.split('-');
-  return `${day.padStart(2, '0')}/${month.padStart(2, '0')}/${year}`;
-};
-
-/* ========================
-   Table Management System
-   ======================== */
-
-const tableSystem = {
-  // Configuration for all tables
-  tables: {
-    scores: {
-      selector: '.scores-table',
-      defaultSort: 1, // Date column
-      dateColumn: 1
+  // Extract frontmatter from markdown content
+  function extractFrontmatter(content) {
+    const frontmatterRegex = /^---\s*([\s\S]*?)\s*---/;
+    const match = content.match(frontmatterRegex);
+  
+    if (!match) return {};
+  
+    const frontmatterText = match[1];
+    const frontmatter = {};
+  
+    frontmatterText.split('\n').forEach(line => {
+      const [key, ...valueParts] = line.split(':');
+      if (key && valueParts.length) {
+        const value = valueParts.join(':').trim();
+        frontmatter[key.trim()] = value.replace(/^"(.*)"$/, '$1');
+      }
+    });
+  
+    return frontmatter;
+  }
+  
+  /* ========================
+     Table Management System
+     ======================== */
+  const tableSystem = {
+    tables: {
+      writeups: {
+        selector: '.writeups-table',
+        defaultSort: 4, // Date column
+        dateColumn: 4
+      }
     },
-    writeups: {
-      selector: '.writeups-table', 
-      defaultSort: 4, // Date column
-      dateColumn: 4
-    }
-  },
-
-  // Initialize all tables
-  async init() {
-    for(const tableId in this.tables) {
-      const config = this.tables[tableId];
-      await this.setupTable(config);
-      this.initSorting(config);
-      this.initSearch(config);
-    }
-  },
-
-
-  // Generic table setup
-async setupTable(config) {
-  const table = document.querySelector(config.selector);
   
-  // Add sort arrows structure
-  table.querySelectorAll('th').forEach((th, index) => {
-    th.innerHTML += `<span class="sort-arrow"></span>`;
-    th.dataset.column = index;
-  });
-
-  // Initial population based on table type
-  if (config.selector === '.writeups-table') {
-    await this.populateWriteups();
-  } else if (config.selector === '.scores-table') {
-    this.populateScores();
-  }
-},
-
-   // Generic sorting handler
-   initSorting(config) {
-    const table = document.querySelector(config.selector);
-
-    table.querySelectorAll('th').forEach(header => {
-      header.addEventListener('click', () => {
-        const columnIndex = parseInt(header.dataset.column);
-        const isActive = header.classList.contains('sorted');
-        const newDirection = isActive ? 
-          (header.classList.contains('desc') ? 'asc' : 'desc') : 'desc';
-
-        this.sortTable(config, columnIndex, newDirection);
-      });
-    });
-
-    // Initial sort
-    this.sortTable(config, config.defaultSort, 'desc');
-  },
-
-  // Generic sorting handler
-  initSorting(config) {
-    const table = document.querySelector(config.selector);
-
-    table.querySelectorAll('th').forEach(header => {
-      header.addEventListener('click', () => {
-        const columnIndex = parseInt(header.dataset.column);
-        const isActive = header.classList.contains('sorted');
-        const newDirection = isActive ? 
-          (header.classList.contains('desc') ? 'asc' : 'desc') : 'desc';
-
-        this.sortTable(config, columnIndex, newDirection);
-      });
-    });
-
-    // Initial sort
-    this.sortTable(config, config.defaultSort, 'desc');
-  },
-
-  // Generic sorting function
-  sortTable(config, columnIndex, direction) {
-    const table = document.querySelector(config.selector);
-    const tbody = table.querySelector('tbody');
-    const rows = Array.from(tbody.rows);
-    const isDateColumn = columnIndex === config.dateColumn;
-
-      // Remove existing sorting classes
-      table.querySelectorAll('th').forEach(th => {
-        th.classList.remove('sorted', 'asc', 'desc');
+    async init() {
+      for (const tableId in this.tables) {
+        const config = this.tables[tableId];
+        await this.setupTable(config);
+        this.initSorting(config);
+        this.initSearch(config);
+      }
+    },
+  
+    async setupTable(config) {
+      const table = document.querySelector(config.selector);
+  
+      // Add sort arrows structure
+      table.querySelectorAll('th').forEach((th, index) => {
+        th.innerHTML += `<span class="sort-arrow"></span>`;
+        th.dataset.column = index;
       });
   
-      // Add new sorting classes
-      const activeHeader = table.querySelector(`th[data-column="${columnIndex}"]`);
-      activeHeader.classList.add('sorted', direction);
+      // Initial population based on table type
+      if (config.selector === '.writeups-table') {
+        await this.populateWriteups();
+      }
+    },
   
-      // Sorting logic
+    async populateWriteups() {
+      const writeups = await fetchWriteupsFromGitHub();
+      
+      if (writeups.length === 0) {
+        console.warn('No writeups found.');
+        return;
+      }
+  
+      const tbody = document.querySelector('.writeups-table tbody');
+      
+      tbody.innerHTML = writeups.map(writeup => `
+        <tr>
+          <td>
+            <a href="/writeups.html?file=${encodeURIComponent(writeup.filename)}" class="challenge-link">
+              ${writeup.challenge}
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="link-icon" viewBox="0 0 24 24">
+                <path d="M12 6h-6a2 2 0 0 0 -2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-6"></path>
+                <path d="M11 13l9 -9"></path>
+                <path d="M15 4h5v5"></path>
+              </svg>
+            </a>
+          </td>
+          <td>${writeup.ctf_event}</td>
+          <td>${writeup.category}</td>
+          <td>${writeup.author}</td>
+          <td>${formatDate(writeup.date)}</td>
+        </tr>
+      `).join('');
+    },
+  
+    initSorting(config) {
+      const table = document.querySelector(config.selector);
+  
+      table.querySelectorAll('th').forEach(header => {
+        header.addEventListener('click', () => {
+          const columnIndex = parseInt(header.dataset.column);
+          const isActive = header.classList.contains('sorted');
+          const newDirection = isActive ? 
+            (header.classList.contains('desc') ? 'asc' : 'desc') : 'desc';
+  
+          this.sortTable(config, columnIndex, newDirection);
+        });
+      });
+  
+      // Initial sort
+      this.sortTable(config, config.defaultSort, 'desc');
+    },
+  
+    sortTable(config, columnIndex, direction) {
+      const table = document.querySelector(config.selector);
+      const tbody = table.querySelector('tbody');
+      const rows = Array.from(tbody.rows);
+      
       rows.sort((a, b) => {
         let aValue = a.cells[columnIndex].textContent.trim().toLowerCase();
         let bValue = b.cells[columnIndex].textContent.trim().toLowerCase();
   
-        if (isDateColumn) {
+        if (columnIndex === config.dateColumn) { // Date column sorting
           const [aDay, aMonth, aYear] = aValue.split('/');
           const [bDay, bMonth, bYear] = bValue.split('/');
           aValue = new Date(`${aYear}-${aMonth}-${aDay}`);
@@ -197,16 +174,19 @@ async setupTable(config) {
           aValue - bValue || aValue.localeCompare(bValue);
       });
   
-      // Update DOM
       tbody.innerHTML = '';
       rows.forEach(row => tbody.appendChild(row));
+      
+      table.querySelectorAll('th').forEach(th => th.classList.remove('sorted', 'asc', 'desc'));
+      
+      const activeHeader = table.querySelector(`th[data-column="${columnIndex}"]`);
+      activeHeader.classList.add('sorted', direction);
     },
-
-  // Generic search implementation
-  initSearch(config) {
-    const searchInput = document.querySelector(`${config.selector}-container .search-input`);
-    
-    searchInput?.addEventListener('input', (e) => {
+  
+    initSearch(config) {
+      const searchInput = document.querySelector(`${config.selector}-container .search-input`);
+  
+      searchInput?.addEventListener('input', (e) => {
         const term = e.target.value.toLowerCase();
         const rows = document.querySelectorAll(`${config.selector} tbody tr`);
   
@@ -217,83 +197,15 @@ async setupTable(config) {
           row.style.display = text.includes(term) ? '' : 'none';
         });
       });
-    },
-    scoresData: [
-        { competition: "HackerCTF Winter Edition", date: "2025-01-15", rank: 8, score: 2450 },
-        { competition: "LocalCTF 2025", date: "2025-02-20", rank: 1, score: 3200 },
-        { competition: "CyberDefenders CTF", date: "2024-11-05", rank: 12, score: 1850 },
-        { competition: "GlobalHack CTF", date: "2024-12-10", rank: 42, score: 1675 },
-        { competition: "SecureCTF", date: "2024-10-25", rank: 15, score: 2100 }
-      ],
-
-      populateScores() {
-        const tbody = document.querySelector('.scores-table tbody');
-        
-        tbody.innerHTML = this.scoresData.map(score => `
-          <tr>
-            <td>${score.competition}</td>
-            <td>${formatDate(score.date)}</td>
-            <td>${score.rank}</td>
-            <td>${score.score}</td>
-          </tr>
-        `).join('');
-      },    
-
-  /* ========================
-     Writeups Data Handling
-     ======================== */
-  writeupsData: [
-    {
-      challenge: "Cookie Monster",
-      ctf_event: "HackerCTF Winter Edition",
-      category: "Web",
-      author: "John Doe", 
-      date: "2025-01-15",
-      description: "Cookie manipulation challenge solution"
-    },
-    {
-      challenge: "Broken RSA",
-      ctf_event: "LocalCTF 2025",
-      category: "Cryptography",
-      author: "Jane Smith",
-      date: "2025-02-20",
-      description: "RSA implementation vulnerability"
     }
-  ],
-
- 
-  async populateWriteups() {
-    // Fetch writeups from GitHub
-    const writeups = await fetchWriteupsFromGitHub();
-    this.writeupsData = writeups;
-    
-    const tbody = document.querySelector('.writeups-table tbody');
-    
-    tbody.innerHTML = writeups.map(writeup => `
-      <tr>
-        <td>
-          <a href="/writeups.html?file=${encodeURIComponent(writeup.filename)}" class="challenge-link">
-            ${writeup.challenge}
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" class="link-icon" viewBox="0 0 24 24">
-              <path d="M5 3c-1.093 0-2 .907-2 2v14c0 1.093.907 2 2 2h14c1.093 0 2-.907 2-2v-7h-2v7H5V5h7V3H5zm9 0v2h3.586l-9.293 9.293 1.414 1.414L19 6.414V10h2V3h-7z"/>
-            </svg>
-          </a>
-        </td>
-        <td>${writeup.ctf_event}</td>
-        <td>${writeup.category}</td>
-        <td>${writeup.author}</td>
-        <td>${formatDate(writeup.date)}</td>
-      </tr>
-    `).join('');
-  } 
-};
-
-/* ========================
-   Initialization
-   ======================== */
-   document.addEventListener('DOMContentLoaded', async () => {
+  };
+  
+  /* ========================
+     Initialization
+     ======================== */
+  document.addEventListener('DOMContentLoaded', async () => {
     await tableSystem.init();
-  });  
+  });
 
 // Team Member Modal Functionality
 document.addEventListener('DOMContentLoaded', function () {
