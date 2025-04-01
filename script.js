@@ -1,6 +1,4 @@
-// script.js - Final Optimized Version
 
-// GitHub integration for writeups
 // GitHub integration for writeups
 const githubConfig = {
   owner: 'tan1sh03',
@@ -15,7 +13,7 @@ async function fetchWriteupsFromGitHub() {
   try {
     console.log('Fetching writeups from GitHub...');
     // Fetch directory listing
-    const apiUrl = `https://api.github.com/repos/${githubConfig.owner}/${githubConfig.repo}/contents/${githubConfig.writeupPath}`;
+    const apiUrl = `https://api.github.com/repos/${githubConfig.owner}/${githubConfig.repo}/contents/${githubConfig.writeupPath}?ref=${githubConfig.branch}`;
     console.log('API URL:', apiUrl);
     
     const response = await fetch(apiUrl);

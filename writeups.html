@@ -57,7 +57,7 @@
         
         // Fetch the writeup content
         const response = await fetch(
-          `https://raw.githubusercontent.com/${githubConfig.owner}/${githubConfig.repo}/${githubConfig.branch}/${githubConfig.writeupPath}/${filename}`
+          `https://api.github.com/repos/${githubConfig.owner}/${githubConfig.repo}/contents/${githubConfig.writeupPath}?ref=${githubConfig.branch}`
         );
         
         if (!response.ok) throw new Error('Failed to fetch writeup');
