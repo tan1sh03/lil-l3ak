@@ -7,7 +7,31 @@ const githubConfig = {
   writeupPath: 'writeups'
 };
 
-// Fetch writeups from GitHub
+function extractFrontmatter(content) {
+  const frontmatterRegex = /^---\s*([\s\S]*?)\s*---/;
+  const match = content.match(frontmatterRegex);
+
+  if (!match) {
+    console.error('No valid frontmatter found in content.');
+    return {};
+  }
+
+  const frontmatterText = match[1];
+  const frontmatter = {};
+
+  // Parse each line of the frontmatter
+  frontmatterText.split('\n').forEach(line => {
+    const [key, ...valueParts] = line.split(':');
+    if (key && valueParts.length) {
+      const value = valueParts.join(':').trim();
+      // Remove quotes if present
+      frontmatter[key.trim()] = value.replace(/^"(.*)"$/, '$1');
+    }
+  });
+
+  return frontmatter;
+}
+
 // Fetch writeups from GitHub
 async function fetchWriteupsFromGitHub() {
   try {
@@ -57,29 +81,6 @@ async function fetchWriteupsFromGitHub() {
     return [];
   }
 }
-
-// Extract frontmatter from markdown content
-function extractFrontmatter(content) {
-  const frontmatterRegex = /^---\s*([\s\S]*?)\s*---/;
-  const match = content.match(frontmatterRegex);
-  
-  if (!match) return {};
-  
-  const frontmatterText = match[1];
-  const frontmatter = {};
-  
-  frontmatterText.split('\n').forEach(line => {
-    const [key, ...valueParts] = line.split(':');
-    if (key && valueParts.length) {
-      const value = valueParts.join(':').trim();
-      // Remove quotes if present
-      frontmatter[key.trim()] = value.replace(/^"(.*)"$/, '$1');
-    }
-  });
-  
-  return frontmatter;
-}
-
 
 /* ========================
    Generic Utility Functions
