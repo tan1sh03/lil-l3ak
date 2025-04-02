@@ -1,5 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
 
+html {
+    scroll-behavior: smooth;
+  }  
+
 :root {
     /* Light Theme Variables */
     --light-bg: #F8FAFC;
@@ -396,12 +400,17 @@ nav a.active {
   }
   
   .link-icon {
-    font-size: 11rem;
+    color: #FFFFFF; /* Set icon color to white */
+    font-size: 1.2rem; /* Adjust size if needed */
     margin-left: 8px; /* Space between title and icon */
   }
+  .link-icon {
+    fill: #FFFFFF; /* For SVG icons */
+    color: #FFFFFF; /* For other types of icons */
+  }  
   
   .challenge-link:hover .link-icon {
-    fill: var(--secondary); /* Change icon color on hover */
+    color: var(--primary); /* Change icon color on hover */
   }
   
  /* Sorting arrows */
@@ -857,7 +866,38 @@ footer .social-icons svg {
         margin: 1rem auto;
     }
 }
-
+.back-button-container {
+    margin-bottom: 1rem;
+  }
+  
+  .back-button {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: var(--primary);
+    font-size: 1rem;
+    transition: color 0.3s ease-in-out;
+  }
+  
+  .back-button:hover {
+    color: var(--secondary);
+  }
+  
+  .back-icon {
+    width: 24px;
+    height: 24px;
+    fill: var(--primary);
+    margin-right: 0.5rem;
+  }
+  
+  .back-button:hover .back-icon {
+    fill: var(--secondary);
+  }
+  
+  .back-text {
+    font-size: 1rem;
+  }
+  
 /* Responsive Design */
 @media (max-width: 768px) {
     #burger-menu {
@@ -901,3 +941,41 @@ footer .social-icons svg {
         transform: none;
     }
 }
+
+/* General table styling */
+table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  th, td {
+    padding: 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  
+  /* Specific column widths */
+  .scores-table th:nth-child(1), .writeups-table th:nth-child(1) {
+    width: 30%; /* Wider for "Competition" or "Challenge Name" */
+  }
+  
+  .scores-table th:nth-child(2), .writeups-table th:nth-child(2) {
+    width: 25%; /* Medium width for "Date" or "CTF Event" */
+  }
+  
+  .scores-table th:nth-child(3), .writeups-table th:nth-child(3) {
+    width: 15%; /* Narrower for "Rank" or "Category" */
+  }
+  
+  .scores-table th:nth-child(4), .writeups-table th:nth-child(4) {
+    width: 15%; /* Narrower for "Score" or "Author" */
+  }
+  
+  .scores-table th:nth-child(5), .writeups-table th:nth-child(5) {
+    width: 15%; /* Narrower for "Date" */
+  }
+  
+  /* Prevent resizing during sorting */
+  table {
+    table-layout: fixed; /* Ensures consistent column widths */
+  }

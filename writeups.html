@@ -14,9 +14,16 @@
     <div class="container">
 
         <!-- Include your header/nav here -->
-
         <div class="content-wrapper">
             <div class="writeup-container">
+                <div class="back-button-container">
+                    <a href="index.html#writeups" class="back-button" onclick="sessionStorage.setItem('activeSection', 'writeups');">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="back-icon">
+                        <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" />
+                      </svg>
+                      <span class="back-text">Back</span>
+                    </a>
+                  </div>                   
                 <div class="writeup-header">
                     <h1 id="challenge-title">Loading writeup...</h1>
                     <div class="writeup-meta">
@@ -30,7 +37,7 @@
                     <p>Loading content...</p>
                 </div>
                 <div class="writeup-footer">
-                    <a href="index.html#writeups" class="button">Back to Writeups</a>
+                    <a href="index.html#writeups" class="button" onclick="sessionStorage.setItem('activeSection', 'writeups');">Back to Writeups</a>
                 </div>
             </div>
         </div>

@@ -88,14 +88,6 @@ async function fetchWriteupsFromGitHub() {
 }
 
 /* ========================
-   Generic Utility Functions
-   ======================== */
-const formatDate = (dateString) => {
-  const [year, month, day] = dateString.split('-');
-  return `${day.padStart(2, '0')}/${month.padStart(2, '0')}/${year}`;
-};
-
-/* ========================
    Table Management System
    ======================== */
 const tableSystem = {
@@ -103,13 +95,16 @@ const tableSystem = {
   tables: {
     scores: {
       selector: '.scores-table',
-      defaultSort: 1, // Date column
-      dateColumn: 1
+      defaultSort: 4, // Date column
+      dateColumn: 4,
+      numericColumns: [1, 3], // Score and Rating columns
+      rankColumn: 2  // Add this to identify the rank column
     },
     writeups: {
       selector: '.writeups-table',
       defaultSort: 4, // Date column
-      dateColumn: 4
+      dateColumn: 4,
+      categoryColumn: 2  // Add this to identify the category column
     }
   },
 
@@ -123,25 +118,27 @@ const tableSystem = {
     }
   },
 
-
   // Generic table setup
-  // Generic table setup
-  async setupTable(config) {
-    const table = document.querySelector(config.selector);
+async setupTable(config) {
+  const table = document.querySelector(config.selector);
 
-    // Add sort arrows structure
-    table.querySelectorAll('th').forEach((th, index) => {
-      th.innerHTML += `<span class="sort-arrow"></span>`;
-      th.dataset.column = index;
-    });
+  // Add sort arrows structure
+  table.querySelectorAll('th').forEach((th, index) => {
+    const sortArrow = document.createElement('span');
+    sortArrow.className = 'sort-arrow';
+    // Add actual content for the arrow
+    sortArrow.innerHTML = '';
+    th.appendChild(sortArrow);
+    th.dataset.column = index;
+  });
 
-    // Initial population based on table type
-    if (config.selector === '.writeups-table') {
-      await this.populateWriteups();
-    } else if (config.selector === '.scores-table') {
-      this.populateScores();
-    }
-  },
+  // Initial population based on table type
+  if (config.selector === '.writeups-table') {
+    await this.populateWriteups();
+  } else if (config.selector === '.scores-table') {
+    this.populateScores();
+  }
+},
 
   // Generic sorting handler
   initSorting(config) {
@@ -166,36 +163,83 @@ const tableSystem = {
   sortTable(config, columnIndex, direction) {
     const table = document.querySelector(config.selector);
     const tbody = table.querySelector('tbody');
+    const headers = table.querySelectorAll('th');
+    
+    // Clear previous sorting states
+    headers.forEach(header => {
+      header.classList.remove('sorted', 'asc', 'desc');
+    });
+    
+    // Apply sorting classes to the current header
+    const currentHeader = table.querySelector(`th[data-column="${columnIndex}"]`);
+    currentHeader.classList.add('sorted', direction);
+    
     const rows = Array.from(tbody.rows);
+    
+    const isNumericColumn = config.numericColumns && config.numericColumns.includes(columnIndex);
     const isDateColumn = columnIndex === config.dateColumn;
-
-    // Remove existing sorting classes
-    table.querySelectorAll('th').forEach(th => {
-      th.classList.remove('sorted', 'asc', 'desc');
-    });
-
-    // Add new sorting classes
-    const activeHeader = table.querySelector(`th[data-column="${columnIndex}"]`);
-    activeHeader.classList.add('sorted', direction);
-
-    // Sorting logic
+    const isRankColumn = columnIndex === config.rankColumn;
+    const isCategoryColumn = config.categoryColumn && columnIndex === config.categoryColumn;
+    
     rows.sort((a, b) => {
-      let aValue = a.cells[columnIndex].textContent.trim().toLowerCase();
-      let bValue = b.cells[columnIndex].textContent.trim().toLowerCase();
-
-      if (isDateColumn) {
-        const [aDay, aMonth, aYear] = aValue.split('/');
-        const [bDay, bMonth, bYear] = bValue.split('/');
-        aValue = new Date(`${aYear}-${aMonth}-${aDay}`);
-        bValue = new Date(`${bYear}-${bMonth}-${bDay}`);
+      let aValue = a.cells[columnIndex].textContent.trim();
+      let bValue = b.cells[columnIndex].textContent.trim();
+  
+      if (isRankColumn) {
+        // Extract just the number before the slash for ranks like "299/4000"
+        aValue = parseInt(aValue.split('/')[0]) || Infinity;
+        bValue = parseInt(bValue.split('/')[0]) || Infinity;
+        return direction === 'desc' ? bValue - aValue : aValue - bValue;
       }
-
-      return direction === 'desc' ?
-        bValue - aValue || bValue.localeCompare(aValue) :
-        aValue - bValue || aValue.localeCompare(bValue);
+      else if (isNumericColumn) {
+        aValue = parseFloat(aValue.replace(/[^0-9.-]/g, '')) || -Infinity;
+        bValue = parseFloat(bValue.replace(/[^0-9.-]/g, '')) || -Infinity;
+        return direction === 'desc' ? bValue - aValue : aValue - bValue;
+      }
+      else if (isDateColumn) {
+        // Parse dates in format DD-MM-YYYY or YYYY-MM-DD
+        let aDate, bDate;
+        
+        // For DD-MM-YYYY format (like "01-04-2025")
+        if (aValue.match(/^\d{2}-\d{2}-\d{4}$/)) {
+          const [aDay, aMonth, aYear] = aValue.split('-');
+          aDate = new Date(`${aYear}-${aMonth}-${aDay}`);
+        } 
+        // For DD/MM/YYYY format
+        else if (aValue.match(/^\d{2}\/\d{2}\/\d{4}$/)) {
+          const [aDay, aMonth, aYear] = aValue.split('/');
+          aDate = new Date(`${aYear}-${aMonth}-${aDay}`);
+        }
+        // For YYYY-MM-DD format
+        else {
+          aDate = new Date(aValue);
+        }
+        
+        // Same for bValue
+        if (bValue.match(/^\d{2}-\d{2}-\d{4}$/)) {
+          const [bDay, bMonth, bYear] = bValue.split('-');
+          bDate = new Date(`${bYear}-${bMonth}-${bDay}`);
+        }
+        else if (bValue.match(/^\d{2}\/\d{2}\/\d{4}$/)) {
+          const [bDay, bMonth, bYear] = bValue.split('/');
+          bDate = new Date(`${bYear}-${bMonth}-${bDay}`);
+        }
+        else {
+          bDate = new Date(bValue);
+        }
+        
+        // Handle invalid dates
+        if (isNaN(aDate.getTime())) aDate = new Date(0);
+        if (isNaN(bDate.getTime())) bDate = new Date(0);
+        
+        return direction === 'desc' ? bDate - aDate : aDate - bDate;
+      }
+  
+      return direction === 'desc'
+        ? bValue.localeCompare(aValue)
+        : aValue.localeCompare(bValue);
     });
-
-    // Update DOM
+  
     tbody.innerHTML = '';
     rows.forEach(row => tbody.appendChild(row));
   },
@@ -248,49 +292,56 @@ initSearch(config) {
   }
 },
 
-  scoresData: [
-    { competition: "HackerCTF Winter Edition", date: "2025-01-15", rank: 8, score: 2450 },
-    { competition: "LocalCTF 2025", date: "2025-02-20", rank: 1, score: 3200 },
-    { competition: "CyberDefenders CTF", date: "2024-11-05", rank: 12, score: 1850 },
-    { competition: "GlobalHack CTF", date: "2024-12-10", rank: 42, score: 1675 },
-    { competition: "SecureCTF", date: "2024-10-25", rank: 15, score: 2100 }
-  ],
-
-  populateScores() {
-    const tbody = document.querySelector('.scores-table tbody');
-
-    tbody.innerHTML = this.scoresData.map(score => `
-          <tr>
-            <td>${score.competition}</td>
-            <td>${formatDate(score.date)}</td>
-            <td>${score.rank}</td>
-            <td>${score.score}</td>
-          </tr>
-        `).join('');
+scoresData: [
+  {
+    competition: "JerseyCTF V",
+    score: 24376.0000,
+    rank: "10/406",
+    rating: 17.414,
+    date: "01-04-2025"
   },
+  {
+    competition: "SwampCTF 2025",
+    score: 2039.0000,
+    rank: "83/750",
+    rating: 16.044,
+    date: "31-03-2025"
+  },
+  {
+    competition: "Cyber Apocalypse CTF 2025: Tales from Eldoria",
+    score: 33750.0000,
+    rank: "299/4000+",
+    rating: 14.285,
+    date: "26-03-2025"
+  },
+  {
+    competition: "Pearl CTF",
+    score: 100.0000,
+    rank: "412/456",
+    rating: 0.458,
+    date: "08-03-2025"
+  },
+  {
+    competition: "Hackfinity Battle (THM)",
+    score: 690,
+    rank: "234/4300+",
+    rating: "---",
+    date: "20-03-2025"
+  }
+],
 
-  /* ========================
-     Writeups Data Handling
-     ======================== */
-  writeupsData: [
-    {
-      challenge: "Cookie Monster",
-      ctf_event: "HackerCTF Winter Edition",
-      category: "Web",
-      author: "John Doe",
-      date: "2025-01-15",
-      description: "Cookie manipulation challenge solution"
-    },
-    {
-      challenge: "Broken RSA",
-      ctf_event: "LocalCTF 2025",
-      category: "Cryptography",
-      author: "Jane Smith",
-      date: "2025-02-20",
-      description: "RSA implementation vulnerability"
-    }
-  ],
-
+populateScores() {
+  const tbody = document.querySelector('.scores-table tbody');
+  
+  tbody.innerHTML = this.scoresData.map(score => `
+    <tr>
+      <td>${score.competition}</td>
+      <td>${score.score}</td>
+      <td>${score.rank}</td>
+      <td>${score.rating}</td>
+      <td>${score.date}</td>
+    </tr>`).join('');
+},
 
   // Update the populateWriteups function to reinitialize search after loading data
 async populateWriteups() {
@@ -320,15 +371,72 @@ async populateWriteups() {
       <td>${writeup.ctf_event}</td>
       <td>${writeup.category}</td>
       <td>${writeup.author}</td>
-      <td>${formatDate(writeup.date)}</td>
+      <td>${writeup.date}</td>
     </tr>
   `).join('');
+
+  document.addEventListener("DOMContentLoaded", () => {
+    // Select all elements with the class 'link-icon'
+    const linkIcons = document.querySelectorAll(".link-icon");
+  
+    // Iterate through each icon and set its color to white
+    linkIcons.forEach((icon) => {
+      icon.style.fill = "#FFFFFF"; // For SVG icons
+      icon.style.color = "#FFFFFF"; // For other types of icons
+    });
+  
+    console.log("Link icon colors updated to white.");
+  });  
   
   // Reinitialize search for the writeups table after populating data
   this.initSearch(this.tables.writeups);
 }
-
 };
+
+// Navigation functionality
+document.addEventListener('DOMContentLoaded', function() {
+  const navLinks = document.querySelectorAll('nav a');
+  const contentSections = document.querySelectorAll('.content-section');
+
+  // Check if we have a stored active section from the writeup page
+  const storedActiveSection = sessionStorage.getItem('activeSection');
+  if (storedActiveSection) {
+    // Remove active class from all links and sections
+    navLinks.forEach(navLink => navLink.classList.remove('active'));
+    contentSections.forEach(section => section.classList.remove('active'));
+    
+    // Activate the stored section
+    const targetSection = document.getElementById(storedActiveSection);
+    const targetLink = document.querySelector(`nav a[data-section="${storedActiveSection}"]`);
+    
+    if (targetSection) targetSection.classList.add('active');
+    if (targetLink) targetLink.classList.add('active');
+    
+    // Clear the stored section now that we've used it
+    sessionStorage.removeItem('activeSection');
+  }
+
+  navLinks.forEach(link => {
+    link.addEventListener('click', function (e) {
+      e.preventDefault();
+
+      // Remove active class from all links
+      navLinks.forEach(navLink => navLink.classList.remove('active'));
+
+      // Add active class to clicked link
+      this.classList.add('active');
+
+      // Get the section to show
+      const sectionId = this.getAttribute('data-section');
+
+      // Hide all sections
+      contentSections.forEach(section => section.classList.remove('active'));
+
+      // Show the selected section
+      document.getElementById(sectionId).classList.add('active');
+    });
+  });
+});
 
 /* ========================
    Initialization
@@ -629,3 +737,49 @@ const logoImg = document.querySelector('.logo img');
 if (logoImg) {
   logoImg.replaceWith(logoSvg);
 }
+
+// Add this to the navigation functionality at the bottom of your file
+document.addEventListener('DOMContentLoaded', function() {
+  const navLinks = document.querySelectorAll('nav a');
+  const contentSections = document.querySelectorAll('.content-section');
+
+  navLinks.forEach(link => {
+    link.addEventListener('click', function (e) {
+      e.preventDefault();
+
+      // Remove active class from all links
+      navLinks.forEach(navLink => navLink.classList.remove('active'));
+
+      // Add active class to clicked link
+      this.classList.add('active');
+
+      // Get the section to show
+      const sectionId = this.getAttribute('data-section');
+
+      // Hide all sections
+      contentSections.forEach(section => section.classList.remove('active'));
+
+      // Show the selected section
+      document.getElementById(sectionId).classList.add('active');
+      
+      // Re-sort tables when their section is activated
+      if (sectionId === 'scores') {
+        tableSystem.sortTable(tableSystem.tables.scores, tableSystem.tables.scores.defaultSort, 'desc');
+      } else if (sectionId === 'writeups') {
+        tableSystem.sortTable(tableSystem.tables.writeups, tableSystem.tables.writeups.defaultSort, 'desc');
+      }
+    });
+  });
+  
+  // Also apply default sorting right after initial table population
+  tableSystem.init = async function() {
+    for (const tableId in this.tables) {
+      const config = this.tables[tableId];
+      await this.setupTable(config);
+      this.initSorting(config);
+      this.initSearch(config);
+      // Explicitly sort by date column in descending order after initialization
+      this.sortTable(config, config.defaultSort, 'desc');
+    }
+  };
+});
