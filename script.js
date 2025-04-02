@@ -7,8 +7,9 @@ const githubConfig = {
   writeupPath: 'writeups'
 };
 
-
 function extractFrontmatter(content) {
+  console.log('Raw Markdown Content:', content); // Debugging log
+
   const frontmatterRegex = /^---\s*([\s\S]*?)\s*---/;
   const match = content.match(frontmatterRegex);
 
@@ -18,6 +19,8 @@ function extractFrontmatter(content) {
   }
 
   const frontmatterText = match[1];
+  console.log('Extracted Frontmatter Text:', frontmatterText); // Debugging log
+
   const frontmatter = {};
 
   // Parse each line of the frontmatter
@@ -29,6 +32,8 @@ function extractFrontmatter(content) {
       frontmatter[key.trim()] = value.replace(/^"(.*)"$/, '$1');
     }
   });
+
+  console.log('Parsed Frontmatter Object:', frontmatter); // Debugging log
   return frontmatter;
 }
 
@@ -39,32 +44,32 @@ async function fetchWriteupsFromGitHub() {
     // Fetch directory listing
     const apiUrl = `https://api.github.com/repos/${githubConfig.owner}/${githubConfig.repo}/contents/${githubConfig.writeupPath}?ref=${githubConfig.branch}`;
     console.log('API URL:', apiUrl);
-    
+
     const response = await fetch(apiUrl);
-    
+
     if (!response.ok) {
       console.error('API response not OK:', response.status, response.statusText);
       throw new Error('Failed to fetch writeups directory');
     }
-    
+
     const files = await response.json();
     console.log('Files found:', files.length);
-    
+
     const markdownFiles = files.filter(file => file.name.endsWith('.md'));
     console.log('Markdown files found:', markdownFiles.length);
-    
+
     // Process each markdown file
     const writeups = await Promise.all(
       markdownFiles.map(async file => {
         console.log('Processing file:', file.name);
         const contentResponse = await fetch(file.download_url);
         if (!contentResponse.ok) throw new Error(`Failed to fetch ${file.name}`);
-        
+
         const content = await contentResponse.text();
         // Extract frontmatter (simplified version)
         const frontmatter = extractFrontmatter(content);
         console.log('Extracted frontmatter for', file.name, frontmatter);
-        
+
         return {
           ...frontmatter,
           filename: file.name,
@@ -73,7 +78,7 @@ async function fetchWriteupsFromGitHub() {
         };
       })
     );
-    
+
     console.log('Processed writeups:', writeups.length);
     return writeups;
   } catch (error) {
@@ -102,7 +107,7 @@ const tableSystem = {
       dateColumn: 1
     },
     writeups: {
-      selector: '.writeups-table', 
+      selector: '.writeups-table',
       defaultSort: 4, // Date column
       dateColumn: 4
     }
@@ -110,7 +115,7 @@ const tableSystem = {
 
   // Initialize all tables
   async init() {
-    for(const tableId in this.tables) {
+    for (const tableId in this.tables) {
       const config = this.tables[tableId];
       await this.setupTable(config);
       this.initSorting(config);
@@ -120,42 +125,22 @@ const tableSystem = {
 
 
   // Generic table setup
-// Generic table setup
-async setupTable(config) {
-  const table = document.querySelector(config.selector);
-  
-  // Add sort arrows structure
-  table.querySelectorAll('th').forEach((th, index) => {
-    th.innerHTML += `<span class="sort-arrow"></span>`;
-    th.dataset.column = index;
-  });
-  
-  // Initial population based on table type
-  if (config.selector === '.writeups-table') {
-    await this.populateWriteups();
-  } else if (config.selector === '.scores-table') {
-    this.populateScores();
-  }
-},
-
-
-   // Generic sorting handler
-   initSorting(config) {
+  // Generic table setup
+  async setupTable(config) {
     const table = document.querySelector(config.selector);
 
-    table.querySelectorAll('th').forEach(header => {
-      header.addEventListener('click', () => {
-        const columnIndex = parseInt(header.dataset.column);
-        const isActive = header.classList.contains('sorted');
-        const newDirection = isActive ? 
-          (header.classList.contains('desc') ? 'asc' : 'desc') : 'desc';
-
-        this.sortTable(config, columnIndex, newDirection);
-      });
+    // Add sort arrows structure
+    table.querySelectorAll('th').forEach((th, index) => {
+      th.innerHTML += `<span class="sort-arrow"></span>`;
+      th.dataset.column = index;
     });
 
-    // Initial sort
-    this.sortTable(config, config.defaultSort, 'desc');
+    // Initial population based on table type
+    if (config.selector === '.writeups-table') {
+      await this.populateWriteups();
+    } else if (config.selector === '.scores-table') {
+      this.populateScores();
+    }
   },
 
   // Generic sorting handler
@@ -166,7 +151,7 @@ async setupTable(config) {
       header.addEventListener('click', () => {
         const columnIndex = parseInt(header.dataset.column);
         const isActive = header.classList.contains('sorted');
-        const newDirection = isActive ? 
+        const newDirection = isActive ?
           (header.classList.contains('desc') ? 'asc' : 'desc') : 'desc';
 
         this.sortTable(config, columnIndex, newDirection);
@@ -184,65 +169,97 @@ async setupTable(config) {
     const rows = Array.from(tbody.rows);
     const isDateColumn = columnIndex === config.dateColumn;
 
-      // Remove existing sorting classes
-      table.querySelectorAll('th').forEach(th => {
-        th.classList.remove('sorted', 'asc', 'desc');
-      });
-  
-      // Add new sorting classes
-      const activeHeader = table.querySelector(`th[data-column="${columnIndex}"]`);
-      activeHeader.classList.add('sorted', direction);
-  
-      // Sorting logic
-      rows.sort((a, b) => {
-        let aValue = a.cells[columnIndex].textContent.trim().toLowerCase();
-        let bValue = b.cells[columnIndex].textContent.trim().toLowerCase();
-  
-        if (isDateColumn) {
-          const [aDay, aMonth, aYear] = aValue.split('/');
-          const [bDay, bMonth, bYear] = bValue.split('/');
-          aValue = new Date(`${aYear}-${aMonth}-${aDay}`);
-          bValue = new Date(`${bYear}-${bMonth}-${bDay}`);
-        }
-  
-        return direction === 'desc' ? 
-          bValue - aValue || bValue.localeCompare(aValue) :
-          aValue - bValue || aValue.localeCompare(bValue);
-      });
-  
-      // Update DOM
-      tbody.innerHTML = '';
-      rows.forEach(row => tbody.appendChild(row));
-    },
+    // Remove existing sorting classes
+    table.querySelectorAll('th').forEach(th => {
+      th.classList.remove('sorted', 'asc', 'desc');
+    });
 
-  // Generic search implementation
-  initSearch(config) {
-    const searchInput = document.querySelector(`${config.selector}-container .search-input`);
+    // Add new sorting classes
+    const activeHeader = table.querySelector(`th[data-column="${columnIndex}"]`);
+    activeHeader.classList.add('sorted', direction);
+
+    // Sorting logic
+    rows.sort((a, b) => {
+      let aValue = a.cells[columnIndex].textContent.trim().toLowerCase();
+      let bValue = b.cells[columnIndex].textContent.trim().toLowerCase();
+
+      if (isDateColumn) {
+        const [aDay, aMonth, aYear] = aValue.split('/');
+        const [bDay, bMonth, bYear] = bValue.split('/');
+        aValue = new Date(`${aYear}-${aMonth}-${aDay}`);
+        bValue = new Date(`${bYear}-${bMonth}-${bDay}`);
+      }
+
+      return direction === 'desc' ?
+        bValue - aValue || bValue.localeCompare(aValue) :
+        aValue - bValue || aValue.localeCompare(bValue);
+    });
+
+    // Update DOM
+    tbody.innerHTML = '';
+    rows.forEach(row => tbody.appendChild(row));
+  },
+
+// Updated initSearch function with specific handling for writeups
+initSearch(config) {
+  // Determine which table we're working with
+  const tableType = config.selector.includes('scores') ? 'scores' : 'writeups';
+  
+  // Try multiple potential selector patterns to find the search input
+  let searchInput = document.querySelector(`.${tableType}-controls .search-input`);
+  
+  // If not found with the first pattern, try alternative selectors
+  if (!searchInput) {
+    searchInput = document.querySelector(`.${tableType}-section .search-input`);
+  }
+  
+  if (!searchInput) {
+    console.error(`Search input not found for ${tableType} table. Make sure the search input exists in the DOM.`);
+    return;
+  }
+  
+  console.log(`Setting up search for ${tableType} table with input:`, searchInput);
+  
+  // Add event listener for the search input
+  searchInput.addEventListener('input', (e) => {
+    const term = e.target.value.toLowerCase();
+    console.log(`Searching for: "${term}" in ${tableType} table`);
     
-    searchInput?.addEventListener('input', (e) => {
-        const term = e.target.value.toLowerCase();
-        const rows = document.querySelectorAll(`${config.selector} tbody tr`);
+    const rows = document.querySelectorAll(`${config.selector} tbody tr`);
+    console.log(`Found ${rows.length} rows to search through`);
+    
+    rows.forEach(row => {
+      const text = Array.from(row.cells)
+        .map(cell => cell.textContent.toLowerCase())
+        .join(' ');
+      const matches = text.includes(term);
+      row.style.display = matches ? '' : 'none';
+    });
+  });
   
-        rows.forEach(row => {
-          const text = Array.from(row.cells)
-            .map(cell => cell.textContent.toLowerCase())
-            .join(' ');
-          row.style.display = text.includes(term) ? '' : 'none';
-        });
-      });
-    },
-    scoresData: [
-        { competition: "HackerCTF Winter Edition", date: "2025-01-15", rank: 8, score: 2450 },
-        { competition: "LocalCTF 2025", date: "2025-02-20", rank: 1, score: 3200 },
-        { competition: "CyberDefenders CTF", date: "2024-11-05", rank: 12, score: 1850 },
-        { competition: "GlobalHack CTF", date: "2024-12-10", rank: 42, score: 1675 },
-        { competition: "SecureCTF", date: "2024-10-25", rank: 15, score: 2100 }
-      ],
+  // Also handle the search button click if it exists
+  const searchButton = searchInput.nextElementSibling;
+  if (searchButton && searchButton.classList.contains('search-button')) {
+    searchButton.addEventListener('click', () => {
+      // Trigger the same search logic when the button is clicked
+      const event = new Event('input', { bubbles: true });
+      searchInput.dispatchEvent(event);
+    });
+  }
+},
 
-      populateScores() {
-        const tbody = document.querySelector('.scores-table tbody');
-        
-        tbody.innerHTML = this.scoresData.map(score => `
+  scoresData: [
+    { competition: "HackerCTF Winter Edition", date: "2025-01-15", rank: 8, score: 2450 },
+    { competition: "LocalCTF 2025", date: "2025-02-20", rank: 1, score: 3200 },
+    { competition: "CyberDefenders CTF", date: "2024-11-05", rank: 12, score: 1850 },
+    { competition: "GlobalHack CTF", date: "2024-12-10", rank: 42, score: 1675 },
+    { competition: "SecureCTF", date: "2024-10-25", rank: 15, score: 2100 }
+  ],
+
+  populateScores() {
+    const tbody = document.querySelector('.scores-table tbody');
+
+    tbody.innerHTML = this.scoresData.map(score => `
           <tr>
             <td>${score.competition}</td>
             <td>${formatDate(score.date)}</td>
@@ -250,7 +267,7 @@ async setupTable(config) {
             <td>${score.score}</td>
           </tr>
         `).join('');
-      },    
+  },
 
   /* ========================
      Writeups Data Handling
@@ -260,7 +277,7 @@ async setupTable(config) {
       challenge: "Cookie Monster",
       ctf_event: "HackerCTF Winter Edition",
       category: "Web",
-      author: "John Doe", 
+      author: "John Doe",
       date: "2025-01-15",
       description: "Cookie manipulation challenge solution"
     },
@@ -274,93 +291,97 @@ async setupTable(config) {
     }
   ],
 
- 
-  async populateWriteups() {
-    // Fetch writeups from GitHub
-    const writeups = await fetchWriteupsFromGitHub();
-    if (writeups.length === 0) {
-      console.warn('No writeups found or error fetching from GitHub.');
-      return;
-    }
-    
-    this.writeupsData = writeups;
-    
-    const tbody = document.querySelector('.writeups-table tbody');
-    
-    tbody.innerHTML = writeups.map(writeup => `
-      <tr>
-        <td>
-          <a href="/writeups.html?file=${encodeURIComponent(writeup.filename)}" class="challenge-link">
-            ${writeup.challenge}
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" class="link-icon" viewBox="0 0 24 24">
-              <path d="M12 6h-6a2 2 0 0 0 -2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-6"></path>
-              <path d="M11 13l9 -9"></path>
-              <path d="M15 4h5v5"></path>
-            </svg>
-          </a>
-        </td>
-        <td>${writeup.ctf_event}</td>
-        <td>${writeup.category}</td>
-        <td>${writeup.author}</td>
-        <td>${formatDate(writeup.date)}</td>
-      </tr>
-    `).join('');
+
+  // Update the populateWriteups function to reinitialize search after loading data
+async populateWriteups() {
+  // Fetch writeups from GitHub
+  const writeups = await fetchWriteupsFromGitHub();
+  if (writeups.length === 0) {
+    console.warn('No writeups found or error fetching from GitHub.');
+    return;
   }
+
+  this.writeupsData = writeups;
+
+  const tbody = document.querySelector('.writeups-table tbody');
+
+  tbody.innerHTML = writeups.map(writeup => `
+    <tr>
+      <td>
+        <a href="/writeups.html?file=${encodeURIComponent(writeup.filename)}" class="challenge-link">
+          ${writeup.challenge}
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" class="link-icon" viewBox="0 0 24 24">
+            <path d="M12 6h-6a2 2 0 0 0 -2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-6"></path>
+            <path d="M11 13l9 -9"></path>
+            <path d="M15 4h5v5"></path>
+          </svg>
+        </a>
+      </td>
+      <td>${writeup.ctf_event}</td>
+      <td>${writeup.category}</td>
+      <td>${writeup.author}</td>
+      <td>${formatDate(writeup.date)}</td>
+    </tr>
+  `).join('');
   
+  // Reinitialize search for the writeups table after populating data
+  this.initSearch(this.tables.writeups);
+}
+
 };
 
 /* ========================
    Initialization
    ======================== */
-   document.addEventListener('DOMContentLoaded', async () => {
-    await tableSystem.init();
-  });  
+document.addEventListener('DOMContentLoaded', async () => {
+  await tableSystem.init();
+});
 
 // Team Member Modal Functionality
 document.addEventListener('DOMContentLoaded', function () {
-    // Create team members with placeholder data
-    const teamSection = document.getElementById('team');
-    const teamGrid = teamSection.querySelector('.team-grid');
+  // Create team members with placeholder data
+  const teamSection = document.getElementById('team');
+  const teamGrid = teamSection.querySelector('.team-grid');
 
-    // Sample team members data
-    const teamMembers = [
-        {
-            name: 'Team Member 1',
-            role: 'Web Exploitation Expert',
-            bio: 'Specialized in finding and exploiting web vulnerabilities. Has 5+ years of experience in CTF competitions with expertise in XSS, CSRF, SQL injection, and more.',
-            categories: ['Web Exploitation', 'API Security', 'OWASP Top 10'],
-            socials: ['github', 'twitter', 'linkedin']
-        },
-        {
-            name: 'Team Member 2',
-            role: 'Reverse Engineering Specialist',
-            bio: 'Expert in disassembling and analyzing binaries. Proficient with tools like IDA Pro, Ghidra, and radare2. Specializes in malware analysis and binary exploitation.',
-            categories: ['Reverse Engineering', 'Binary Exploitation', 'Malware Analysis'],
-            socials: ['github', 'discord', 'linkedin']
-        },
-        {
-            name: 'Team Member 3',
-            role: 'Cryptography Wizard',
-            bio: 'Mathematics background with focus on modern cryptographic algorithms. Experienced in breaking weak encryption implementations and solving complex crypto challenges.',
-            categories: ['Cryptography', 'Mathematics', 'Algorithm Design'],
-            socials: ['github', 'twitter', 'website']
-        },
-        {
-            name: 'Team Member 4',
-            role: 'Forensics Investigator',
-            bio: 'Digital forensics expert specializing in memory analysis, disk forensics, and network traffic analysis. Skilled with tools like Volatility, Wireshark, and Autopsy.',
-            categories: ['Digital Forensics', 'Memory Analysis', 'Network Forensics'],
-            socials: ['github', 'linkedin', 'discord']
-        }
-    ];
+  // Sample team members data
+  const teamMembers = [
+    {
+      name: 'Team Member 1',
+      role: 'Web Exploitation Expert',
+      bio: 'Specialized in finding and exploiting web vulnerabilities. Has 5+ years of experience in CTF competitions with expertise in XSS, CSRF, SQL injection, and more.',
+      categories: ['Web Exploitation', 'API Security', 'OWASP Top 10'],
+      socials: ['github', 'twitter', 'linkedin']
+    },
+    {
+      name: 'Team Member 2',
+      role: 'Reverse Engineering Specialist',
+      bio: 'Expert in disassembling and analyzing binaries. Proficient with tools like IDA Pro, Ghidra, and radare2. Specializes in malware analysis and binary exploitation.',
+      categories: ['Reverse Engineering', 'Binary Exploitation', 'Malware Analysis'],
+      socials: ['github', 'discord', 'linkedin']
+    },
+    {
+      name: 'Team Member 3',
+      role: 'Cryptography Wizard',
+      bio: 'Mathematics background with focus on modern cryptographic algorithms. Experienced in breaking weak encryption implementations and solving complex crypto challenges.',
+      categories: ['Cryptography', 'Mathematics', 'Algorithm Design'],
+      socials: ['github', 'twitter', 'website']
+    },
+    {
+      name: 'Team Member 4',
+      role: 'Forensics Investigator',
+      bio: 'Digital forensics expert specializing in memory analysis, disk forensics, and network traffic analysis. Skilled with tools like Volatility, Wireshark, and Autopsy.',
+      categories: ['Digital Forensics', 'Memory Analysis', 'Network Forensics'],
+      socials: ['github', 'linkedin', 'discord']
+    }
+  ];
 
-    // Clear existing content and create team member cards
-    teamMembers.forEach((member, index) => {
-        const memberCard = document.createElement('div');
-        memberCard.className = 'team-member';
-        memberCard.dataset.memberId = index;
+  // Clear existing content and create team member cards
+  teamMembers.forEach((member, index) => {
+    const memberCard = document.createElement('div');
+    memberCard.className = 'team-member';
+    memberCard.dataset.memberId = index;
 
-        memberCard.innerHTML = `
+    memberCard.innerHTML = `
           <div class="avatar">
             <img src="placeholder-avatar-${index + 1}.png" alt="${member.name}" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'120\\' height=\\'120\\' viewBox=\\'0 0 120 120\\'><circle cx=\\'60\\' cy=\\'60\\' r=\\'50\\' fill=\\'%236366F1\\'/><text x=\\'50%\\' y=\\'50%\\' dominant-baseline=\\'middle\\' text-anchor=\\'middle\\' font-family=\\'Arial\\' font-size=\\'40\\' fill=\\'white\\'>${member.name.charAt(0)}</text></svg>'">
           </div>
@@ -368,40 +389,40 @@ document.addEventListener('DOMContentLoaded', function () {
           <p>${member.role}</p>
         `;
 
-        teamGrid.appendChild(memberCard);
+    teamGrid.appendChild(memberCard);
 
-        // Add click event to open modal
-        memberCard.addEventListener('click', function () {
-            openTeamModal(member);
-        });
+    // Add click event to open modal
+    memberCard.addEventListener('click', function () {
+      openTeamModal(member);
     });
+  });
 
-    // Create modal container if it doesn't exist
-    if (!document.querySelector('.team-modal')) {
-        const modalContainer = document.createElement('div');
-        modalContainer.className = 'team-modal';
-        document.body.appendChild(modalContainer);
-    }
+  // Create modal container if it doesn't exist
+  if (!document.querySelector('.team-modal')) {
+    const modalContainer = document.createElement('div');
+    modalContainer.className = 'team-modal';
+    document.body.appendChild(modalContainer);
+  }
 
-    // Function to open team member modal
-    function openTeamModal(member) {
-        const modal = document.querySelector('.team-modal');
+  // Function to open team member modal
+  function openTeamModal(member) {
+    const modal = document.querySelector('.team-modal');
 
-        // Create categories HTML
-        const categoriesHTML = member.categories.map(cat =>
-            `<span class="category-tag">${cat}</span>`
-        ).join('');
+    // Create categories HTML
+    const categoriesHTML = member.categories.map(cat =>
+      `<span class="category-tag">${cat}</span>`
+    ).join('');
 
-        // Create socials HTML
-        const socialsHTML = member.socials.map(social =>
-            `<a href="#" class="social-${social}" aria-label="${social}">
+    // Create socials HTML
+    const socialsHTML = member.socials.map(social =>
+      `<a href="#" class="social-${social}" aria-label="${social}">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
               <use href="#icon-${social}"></use>
             </svg>
           </a>`
-        ).join('');
+    ).join('');
 
-        modal.innerHTML = `
+    modal.innerHTML = `
           <div class="modal-content">
             <span class="close-modal">&times;</span>
             <div class="modal-header">
@@ -432,26 +453,26 @@ document.addEventListener('DOMContentLoaded', function () {
           </div>
         `;
 
-        modal.style.display = 'block';
+    modal.style.display = 'block';
 
-        // Add close functionality
-        const closeBtn = modal.querySelector('.close-modal');
-        closeBtn.addEventListener('click', function () {
-            modal.style.display = 'none';
-        });
+    // Add close functionality
+    const closeBtn = modal.querySelector('.close-modal');
+    closeBtn.addEventListener('click', function () {
+      modal.style.display = 'none';
+    });
 
-        // Close when clicking outside the modal content
-        modal.addEventListener('click', function (e) {
-            if (e.target === modal) {
-                modal.style.display = 'none';
-            }
-        });
-    }
+    // Close when clicking outside the modal content
+    modal.addEventListener('click', function (e) {
+      if (e.target === modal) {
+        modal.style.display = 'none';
+      }
+    });
+  }
 
-    // Add SVG definitions for social icons
-    const svgDefs = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    svgDefs.style.display = 'none';
-    svgDefs.innerHTML = `
+  // Add SVG definitions for social icons
+  const svgDefs = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svgDefs.style.display = 'none';
+  svgDefs.innerHTML = `
       <defs>
         <symbol id="icon-github" viewBox="0 0 24 24">
           <path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.387.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.387-1.333-1.756-1.333-1.756-1.09-.745.083-.73.083-.73 1.205.085 1.838 1.236 1.838 1.236 1.07 1.835 2.807 1.305 3.492.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12"/>
@@ -471,67 +492,67 @@ document.addEventListener('DOMContentLoaded', function () {
       </symbol>
     </defs>
   `;
-    document.body.appendChild(svgDefs);
+  document.body.appendChild(svgDefs);
 });
 
 // Toggle between light and dark themes
 // Wait for the DOM to be fully loaded
 document.addEventListener('DOMContentLoaded', function () {
-    // Theme toggle functionality
-    const themeToggle = document.getElementById('theme-toggle');
-    const htmlElement = document.documentElement;
+  // Theme toggle functionality
+  const themeToggle = document.getElementById('theme-toggle');
+  const htmlElement = document.documentElement;
 
-    // Check if user has a preferred theme stored
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme) {
-        htmlElement.setAttribute('data-theme', savedTheme);
-    }
+  // Check if user has a preferred theme stored
+  const savedTheme = localStorage.getItem('theme');
+  if (savedTheme) {
+    htmlElement.setAttribute('data-theme', savedTheme);
+  }
 
-    // Toggle between light and dark themes
-    themeToggle.addEventListener('click', function () {
-        const currentTheme = htmlElement.getAttribute('data-theme');
-        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+  // Toggle between light and dark themes
+  themeToggle.addEventListener('click', function () {
+    const currentTheme = htmlElement.getAttribute('data-theme');
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
 
-        htmlElement.setAttribute('data-theme', newTheme);
-        localStorage.setItem('theme', newTheme);
-    });
+    htmlElement.setAttribute('data-theme', newTheme);
+    localStorage.setItem('theme', newTheme);
+  });
 });
 
 // Burger menu and theme toggle integration
 document.addEventListener('DOMContentLoaded', function () {
-    const burgerMenu = document.querySelector('.burger-menu');
-    const mainNav = document.getElementById('main-nav');
-    const themeToggle = document.getElementById('theme-toggle');
+  const burgerMenu = document.querySelector('.burger-menu');
+  const mainNav = document.getElementById('main-nav');
+  const themeToggle = document.getElementById('theme-toggle');
 
-    burgerMenu.addEventListener('click', function () {
-        mainNav.classList.toggle('active');
+  burgerMenu.addEventListener('click', function () {
+    mainNav.classList.toggle('active');
 
-        // When burger menu is active, move theme toggle inside
-        if (mainNav.classList.contains('active') && window.innerWidth <= 576) {
-            mainNav.appendChild(themeToggle);
-            themeToggle.style.display = 'flex';
-        } else if (window.innerWidth <= 576) {
-            // When burger menu is closed, hide theme toggle on mobile
-            document.querySelector('header').appendChild(themeToggle);
-            themeToggle.style.display = 'none';
-        }
-    });
+    // When burger menu is active, move theme toggle inside
+    if (mainNav.classList.contains('active') && window.innerWidth <= 576) {
+      mainNav.appendChild(themeToggle);
+      themeToggle.style.display = 'flex';
+    } else if (window.innerWidth <= 576) {
+      // When burger menu is closed, hide theme toggle on mobile
+      document.querySelector('header').appendChild(themeToggle);
+      themeToggle.style.display = 'none';
+    }
+  });
 
-    // Handle resize events
-    window.addEventListener('resize', function () {
-        if (window.innerWidth > 576) {
-            // On desktop, ensure theme toggle is in header
-            if (themeToggle.parentElement !== document.querySelector('header')) {
-                document.querySelector('header').appendChild(themeToggle);
-            }
-            themeToggle.style.display = 'flex';
-        } else {
-            // On mobile, check if burger menu is active
-            if (!mainNav.classList.contains('active')) {
-                themeToggle.style.display = 'none';
-            }
-        }
-    });
+  // Handle resize events
+  window.addEventListener('resize', function () {
+    if (window.innerWidth > 576) {
+      // On desktop, ensure theme toggle is in header
+      if (themeToggle.parentElement !== document.querySelector('header')) {
+        document.querySelector('header').appendChild(themeToggle);
+      }
+      themeToggle.style.display = 'flex';
+    } else {
+      // On mobile, check if burger menu is active
+      if (!mainNav.classList.contains('active')) {
+        themeToggle.style.display = 'none';
+      }
+    }
+  });
 });
 
 // Navigation functionality
@@ -539,43 +560,43 @@ const navLinks = document.querySelectorAll('nav a');
 const contentSections = document.querySelectorAll('.content-section');
 
 navLinks.forEach(link => {
-    link.addEventListener('click', function (e) {
-        e.preventDefault();
+  link.addEventListener('click', function (e) {
+    e.preventDefault();
 
-        // Remove active class from all links
-        navLinks.forEach(navLink => navLink.classList.remove('active'));
+    // Remove active class from all links
+    navLinks.forEach(navLink => navLink.classList.remove('active'));
 
-        // Add active class to clicked link
-        this.classList.add('active');
+    // Add active class to clicked link
+    this.classList.add('active');
 
-        // Get the section to show
-        const sectionId = this.getAttribute('data-section');
+    // Get the section to show
+    const sectionId = this.getAttribute('data-section');
 
-        // Hide all sections
-        contentSections.forEach(section => section.classList.remove('active'));
+    // Hide all sections
+    contentSections.forEach(section => section.classList.remove('active'));
 
-        // Show the selected section
-        document.getElementById(sectionId).classList.add('active');
-    });
+    // Show the selected section
+    document.getElementById(sectionId).classList.add('active');
+  });
 });
 
 // Sample SVG icons for social media and theme toggle
 // Enhanced SVG icons with better viewBox settings and styling
 const svgIcons = {
-    discord: `<path fill="currentColor" d="M20.317 4.492c-1.53-.69-3.17-1.2-4.885-1.49a.075.075 0 0 0-.079.036c-.21.39-.444.9-.608 1.3A15.15 15.15 0 0 0 9.14 4.32a.077.077 0 0 0-.082-.028 15.525 15.525 0 0 0-4.877 1.5.07.07 0 0 0-.032.027C1.983 9.38 1.327 14.11 1.677 18.775a.082.082 0 0 0 .031.056 15.624 15.624 0 0 0 4.697 2.375.077.077 0 0 0 .084-.026c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 10.33 10.33 0 0 1-1.477-.703.077.077 0 0 1-.008-.128c.1-.074.199-.152.293-.23a.074.074 0 0 1 .077-.01c3.927 1.793 8.18 1.793 12.063 0a.074.074 0 0 1 .078.01c.095.078.193.156.293.23a.077.077 0 0 1-.006.127 9.55 9.55 0 0 1-1.479.704.077.077 0 0 0-.041.106c.36.698.772 1.363 1.225 1.993a.076.076 0 0 0 .084.028 15.576 15.576 0 0 0 4.702-2.377.077.077 0 0 0 .032-.054c.417-5.322-.699-9.98-2.956-14.271a.06.06 0 0 0-.031-.028zM8.475 15.596c-.927 0-1.695-.85-1.695-1.89 0-1.042.757-1.89 1.695-1.89.945 0 1.705.856 1.693 1.89 0 1.04-.757 1.89-1.693 1.89zm6.252 0c-.928 0-1.695-.85-1.695-1.89 0-1.042.757-1.89 1.695-1.89.944 0 1.704.856 1.692 1.89 0 1.04-.748 1.89-1.692 1.89z"/>`,
+  discord: `<path fill="currentColor" d="M20.317 4.492c-1.53-.69-3.17-1.2-4.885-1.49a.075.075 0 0 0-.079.036c-.21.39-.444.9-.608 1.3A15.15 15.15 0 0 0 9.14 4.32a.077.077 0 0 0-.082-.028 15.525 15.525 0 0 0-4.877 1.5.07.07 0 0 0-.032.027C1.983 9.38 1.327 14.11 1.677 18.775a.082.082 0 0 0 .031.056 15.624 15.624 0 0 0 4.697 2.375.077.077 0 0 0 .084-.026c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 10.33 10.33 0 0 1-1.477-.703.077.077 0 0 1-.008-.128c.1-.074.199-.152.293-.23a.074.074 0 0 1 .077-.01c3.927 1.793 8.18 1.793 12.063 0a.074.074 0 0 1 .078.01c.095.078.193.156.293.23a.077.077 0 0 1-.006.127 9.55 9.55 0 0 1-1.479.704.077.077 0 0 0-.041.106c.36.698.772 1.363 1.225 1.993a.076.076 0 0 0 .084.028 15.576 15.576 0 0 0 4.702-2.377.077.077 0 0 0 .032-.054c.417-5.322-.699-9.98-2.956-14.271a.06.06 0 0 0-.031-.028zM8.475 15.596c-.927 0-1.695-.85-1.695-1.89 0-1.042.757-1.89 1.695-1.89.945 0 1.705.856 1.693 1.89 0 1.04-.757 1.89-1.693 1.89zm6.252 0c-.928 0-1.695-.85-1.695-1.89 0-1.042.757-1.89 1.695-1.89.944 0 1.704.856 1.692 1.89 0 1.04-.748 1.89-1.692 1.89z"/>`,
 
-    instagram: `<path fill="currentColor" d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>`,
+  instagram: `<path fill="currentColor" d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>`,
 
-    ctftime: `<path fill="currentColor" d="M12 0c6.627 0 12 5.373 12 12s-5.373 12-12 12S0 18.627 0 12 5.373 0 12 0zm0 2c-5.514 0-10 4.486-10 10s4.486 10 10 10 10-4.486 10-10S17.514 2 12 2zm1 10V7c0-.552-.448-1-1-1s-1 .448-1 1v6c0 .38.214.725.553.895l3.447 1.724c.494.247 1.095.047 1.342-.447.246-.494.046-1.095-.448-1.342L13 12z"/>`,
+  ctftime: `<path fill="currentColor" d="M12 0c6.627 0 12 5.373 12 12s-5.373 12-12 12S0 18.627 0 12 5.373 0 12 0zm0 2c-5.514 0-10 4.486-10 10s4.486 10 10 10 10-4.486 10-10S17.514 2 12 2zm1 10V7c0-.552-.448-1-1-1s-1 .448-1 1v6c0 .38.214.725.553.895l3.447 1.724c.494.247 1.095.047 1.342-.447.246-.494.046-1.095-.448-1.342L13 12z"/>`,
 
-    x: `<path fill="currentColor" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>`,
+  x: `<path fill="currentColor" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>`,
 
-    // Enhanced sun icon with rays
-    sun: `<circle cx="12" cy="12" r="5" fill="currentColor"/>
+  // Enhanced sun icon with rays
+  sun: `<circle cx="12" cy="12" r="5" fill="currentColor"/>
          <path fill="currentColor" d="M12 2v3M12 19v3M4.93 4.93l2.12 2.12M16.95 16.95l2.12 2.12M2 12h3M19 12h3M4.93 19.07l2.12-2.12M16.95 7.05l2.12-2.12"/>`,
 
-    // Enhanced moon icon
-    moon: `<path fill="currentColor" d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>`
+  // Enhanced moon icon
+  moon: `<path fill="currentColor" d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>`
 };
 
 // Insert SVG icons
@@ -588,9 +609,9 @@ const xIcon = document.querySelector('footer .icon-x');
 
 // Helper function to safely insert SVG content
 function safelyInsertSVG(element, svgContent) {
-    if (element) {
-        element.innerHTML = svgContent;
-    }
+  if (element) {
+    element.innerHTML = svgContent;
+  }
 }
 
 // Insert all SVG icons
@@ -606,5 +627,5 @@ safelyInsertSVG(xIcon, svgIcons.x);
 // Insert logo
 const logoImg = document.querySelector('.logo img');
 if (logoImg) {
-    logoImg.replaceWith(logoSvg);
+  logoImg.replaceWith(logoSvg);
 }

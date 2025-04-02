@@ -11,5 +11,8 @@ date: "2025-01-15"
 ## Challenge Description
 This challenge involved manipulating browser cookies to bypass authentication.
 
+
+
+
 ## Solution
 First, I examined the cookies using browser developer tools...
