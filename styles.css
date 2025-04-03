@@ -695,7 +695,13 @@ footer .social-icons svg {
     width: 100%;
 }
 
+h2{
+    font-size: 1.7rem;
+}
 
+p{
+    font-size: 1.2rem;
+}
 /* Team Section - Modular Design */
 .team-grid {
     display: grid;
@@ -773,6 +779,35 @@ footer .social-icons svg {
     animation: modalFadeIn 0.3s ease;
 }
 
+.avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
+  
+  .modal-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
+
+  .modal-bio {
+    margin-bottom: 1.5rem; /* Add space after the bio */
+    font-size: 1.2rem;
+  }
+  
+  .modal-categories {
+    margin-bottom: 1.5rem; /* Add space after the expertise section */
+  }
+  
+  .modal-categories h3,
+  .modal-socials h3 {
+    margin-bottom: 0.75rem; /* Add space below the "Expertise" and "Connect" headings */
+  }
+  
+
 @keyframes modalFadeIn {
     from {
         opacity: 0;
@@ -821,9 +856,9 @@ footer .social-icons svg {
     color: var(--button-text);
     padding: 0.25rem 0.75rem;
     border-radius: 20px;
-    font-size: 0.875rem;
+    font-size: 1rem;
     display: inline-block;
-    margin-right: 0.5rem;
+    margin-right: 0.9rem;
     margin-bottom: 0.5rem;
 }
 

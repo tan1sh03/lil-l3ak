@@ -496,7 +496,7 @@ document.addEventListener('DOMContentLoaded', function () {
       role: "Web and Crypto Specialist",
       bio: "The Spider-Man of Web challenges, weaving through vulnerabilities with ease. Crypto is his passion, but binaries? His kryptonite.",
       categories: ["Cryptography", "Web"],
-      socials: ["www.linkedin.com/in/tanish-sancheti"],
+      socials: ["https://linkedin.com/in/tanish-sancheti"],
       image: "S1nC0s134.jpg",
     },
     {
@@ -634,7 +634,7 @@ document.addEventListener('DOMContentLoaded', function () {
       iconName = 'link'; // Default fallback for other links
     }
     return `
-      <a href="${social}" target="_blank" class="social-link" aria-label="${iconName}">
+      <a href="${social}" target="_blank" rel="noopener noreferrer" class="social-link" aria-label="${iconName}">
         <i class="fab fa-${iconName}"></i>
       </a>
     `;
