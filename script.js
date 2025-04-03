@@ -8,7 +8,7 @@ const githubConfig = {
 };
 
 // Check for hash in URL and activate corresponding section
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
   if (window.location.hash) {
     const sectionId = window.location.hash.substring(1); // Remove the # character
     const section = document.getElementById(sectionId);
@@ -135,26 +135,26 @@ const tableSystem = {
   },
 
   // Generic table setup
-async setupTable(config) {
-  const table = document.querySelector(config.selector);
+  async setupTable(config) {
+    const table = document.querySelector(config.selector);
 
-  // Add sort arrows structure
-  table.querySelectorAll('th').forEach((th, index) => {
-    const sortArrow = document.createElement('span');
-    sortArrow.className = 'sort-arrow';
-    // Add actual content for the arrow
-    sortArrow.innerHTML = '';
-    th.appendChild(sortArrow);
-    th.dataset.column = index;
-  });
+    // Add sort arrows structure
+    table.querySelectorAll('th').forEach((th, index) => {
+      const sortArrow = document.createElement('span');
+      sortArrow.className = 'sort-arrow';
+      // Add actual content for the arrow
+      sortArrow.innerHTML = '';
+      th.appendChild(sortArrow);
+      th.dataset.column = index;
+    });
 
-  // Initial population based on table type
-  if (config.selector === '.writeups-table') {
-    await this.populateWriteups();
-  } else if (config.selector === '.scores-table') {
-    this.populateScores();
-  }
-},
+    // Initial population based on table type
+    if (config.selector === '.writeups-table') {
+      await this.populateWriteups();
+    } else if (config.selector === '.scores-table') {
+      this.populateScores();
+    }
+  },
 
   // Generic sorting handler
   initSorting(config) {
@@ -180,27 +180,27 @@ async setupTable(config) {
     const table = document.querySelector(config.selector);
     const tbody = table.querySelector('tbody');
     const headers = table.querySelectorAll('th');
-    
+
     // Clear previous sorting states
     headers.forEach(header => {
       header.classList.remove('sorted', 'asc', 'desc');
     });
-    
+
     // Apply sorting classes to the current header
     const currentHeader = table.querySelector(`th[data-column="${columnIndex}"]`);
     currentHeader.classList.add('sorted', direction);
-    
+
     const rows = Array.from(tbody.rows);
-    
+
     const isNumericColumn = config.numericColumns && config.numericColumns.includes(columnIndex);
     const isDateColumn = columnIndex === config.dateColumn;
     const isRankColumn = columnIndex === config.rankColumn;
     const isCategoryColumn = config.categoryColumn && columnIndex === config.categoryColumn;
-    
+
     rows.sort((a, b) => {
       let aValue = a.cells[columnIndex].textContent.trim();
       let bValue = b.cells[columnIndex].textContent.trim();
-  
+
       if (isRankColumn) {
         // Extract just the number before the slash for ranks like "299/4000"
         aValue = parseInt(aValue.split('/')[0]) || Infinity;
@@ -215,12 +215,12 @@ async setupTable(config) {
       else if (isDateColumn) {
         // Parse dates in format DD-MM-YYYY or YYYY-MM-DD
         let aDate, bDate;
-        
+
         // For DD-MM-YYYY format (like "01-04-2025")
         if (aValue.match(/^\d{2}-\d{2}-\d{4}$/)) {
           const [aDay, aMonth, aYear] = aValue.split('-');
           aDate = new Date(`${aYear}-${aMonth}-${aDay}`);
-        } 
+        }
         // For DD/MM/YYYY format
         else if (aValue.match(/^\d{2}\/\d{2}\/\d{4}$/)) {
           const [aDay, aMonth, aYear] = aValue.split('/');
@@ -230,7 +230,7 @@ async setupTable(config) {
         else {
           aDate = new Date(aValue);
         }
-        
+
         // Same for bValue
         if (bValue.match(/^\d{2}-\d{2}-\d{4}$/)) {
           const [bDay, bMonth, bYear] = bValue.split('-');
@@ -243,113 +243,113 @@ async setupTable(config) {
         else {
           bDate = new Date(bValue);
         }
-        
+
         // Handle invalid dates
         if (isNaN(aDate.getTime())) aDate = new Date(0);
         if (isNaN(bDate.getTime())) bDate = new Date(0);
-        
+
         return direction === 'desc' ? bDate - aDate : aDate - bDate;
       }
-  
+
       return direction === 'desc'
         ? bValue.localeCompare(aValue)
         : aValue.localeCompare(bValue);
     });
-  
+
     tbody.innerHTML = '';
     rows.forEach(row => tbody.appendChild(row));
   },
 
-// Updated initSearch function with specific handling for writeups
-initSearch(config) {
-  // Determine which table we're working with
-  const tableType = config.selector.includes('scores') ? 'scores' : 'writeups';
-  
-  // Try multiple potential selector patterns to find the search input
-  let searchInput = document.querySelector(`.${tableType}-controls .search-input`);
-  
-  // If not found with the first pattern, try alternative selectors
-  if (!searchInput) {
-    searchInput = document.querySelector(`.${tableType}-section .search-input`);
-  }
-  
-  if (!searchInput) {
-    console.error(`Search input not found for ${tableType} table. Make sure the search input exists in the DOM.`);
-    return;
-  }
-  
-  console.log(`Setting up search for ${tableType} table with input:`, searchInput);
-  
-  // Add event listener for the search input
-  searchInput.addEventListener('input', (e) => {
-    const term = e.target.value.toLowerCase();
-    console.log(`Searching for: "${term}" in ${tableType} table`);
-    
-    const rows = document.querySelectorAll(`${config.selector} tbody tr`);
-    console.log(`Found ${rows.length} rows to search through`);
-    
-    rows.forEach(row => {
-      const text = Array.from(row.cells)
-        .map(cell => cell.textContent.toLowerCase())
-        .join(' ');
-      const matches = text.includes(term);
-      row.style.display = matches ? '' : 'none';
-    });
-  });
-  
-  // Also handle the search button click if it exists
-  const searchButton = searchInput.nextElementSibling;
-  if (searchButton && searchButton.classList.contains('search-button')) {
-    searchButton.addEventListener('click', () => {
-      // Trigger the same search logic when the button is clicked
-      const event = new Event('input', { bubbles: true });
-      searchInput.dispatchEvent(event);
-    });
-  }
-},
+  // Updated initSearch function with specific handling for writeups
+  initSearch(config) {
+    // Determine which table we're working with
+    const tableType = config.selector.includes('scores') ? 'scores' : 'writeups';
 
-scoresData: [
-  {
-    competition: "JerseyCTF V",
-    score: 24376.0000,
-    rank: "10/406",
-    rating: 17.414,
-    date: "01-04-2025"
-  },
-  {
-    competition: "SwampCTF 2025",
-    score: 2039.0000,
-    rank: "83/750",
-    rating: 16.044,
-    date: "31-03-2025"
-  },
-  {
-    competition: "Cyber Apocalypse CTF 2025: Tales from Eldoria",
-    score: 33750.0000,
-    rank: "299/4000+",
-    rating: 14.285,
-    date: "26-03-2025"
-  },
-  {
-    competition: "Pearl CTF",
-    score: 100.0000,
-    rank: "412/456",
-    rating: 0.458,
-    date: "08-03-2025"
-  },
-  {
-    competition: "Hackfinity Battle (THM)",
-    score: 690,
-    rank: "234/4300+",
-    rating: "---",
-    date: "20-03-2025"
-  }
-],
+    // Try multiple potential selector patterns to find the search input
+    let searchInput = document.querySelector(`.${tableType}-controls .search-input`);
 
-populateScores() {
-  const tbody = document.querySelector('.scores-table tbody');
-  
-  tbody.innerHTML = this.scoresData.map(score => `
+    // If not found with the first pattern, try alternative selectors
+    if (!searchInput) {
+      searchInput = document.querySelector(`.${tableType}-section .search-input`);
+    }
+
+    if (!searchInput) {
+      console.error(`Search input not found for ${tableType} table. Make sure the search input exists in the DOM.`);
+      return;
+    }
+
+    console.log(`Setting up search for ${tableType} table with input:`, searchInput);
+
+    // Add event listener for the search input
+    searchInput.addEventListener('input', (e) => {
+      const term = e.target.value.toLowerCase();
+      console.log(`Searching for: "${term}" in ${tableType} table`);
+
+      const rows = document.querySelectorAll(`${config.selector} tbody tr`);
+      console.log(`Found ${rows.length} rows to search through`);
+
+      rows.forEach(row => {
+        const text = Array.from(row.cells)
+          .map(cell => cell.textContent.toLowerCase())
+          .join(' ');
+        const matches = text.includes(term);
+        row.style.display = matches ? '' : 'none';
+      });
+    });
+
+    // Also handle the search button click if it exists
+    const searchButton = searchInput.nextElementSibling;
+    if (searchButton && searchButton.classList.contains('search-button')) {
+      searchButton.addEventListener('click', () => {
+        // Trigger the same search logic when the button is clicked
+        const event = new Event('input', { bubbles: true });
+        searchInput.dispatchEvent(event);
+      });
+    }
+  },
+
+  scoresData: [
+    {
+      competition: "JerseyCTF V",
+      score: 24376.0000,
+      rank: "10/406",
+      rating: 17.414,
+      date: "01-04-2025"
+    },
+    {
+      competition: "SwampCTF 2025",
+      score: 2039.0000,
+      rank: "83/750",
+      rating: 16.044,
+      date: "31-03-2025"
+    },
+    {
+      competition: "Cyber Apocalypse CTF 2025: Tales from Eldoria",
+      score: 33750.0000,
+      rank: "299/4000+",
+      rating: 14.285,
+      date: "26-03-2025"
+    },
+    {
+      competition: "Pearl CTF",
+      score: 100.0000,
+      rank: "412/456",
+      rating: 0.458,
+      date: "08-03-2025"
+    },
+    {
+      competition: "Hackfinity Battle (THM)",
+      score: 690,
+      rank: "234/4300+",
+      rating: "---",
+      date: "20-03-2025"
+    }
+  ],
+
+  populateScores() {
+    const tbody = document.querySelector('.scores-table tbody');
+
+    tbody.innerHTML = this.scoresData.map(score => `
     <tr>
       <td>${score.competition}</td>
       <td>${score.score}</td>
@@ -357,22 +357,22 @@ populateScores() {
       <td>${score.rating}</td>
       <td>${score.date}</td>
     </tr>`).join('');
-},
+  },
 
   // Update the populateWriteups function to reinitialize search after loading data
-async populateWriteups() {
-  // Fetch writeups from GitHub
-  const writeups = await fetchWriteupsFromGitHub();
-  if (writeups.length === 0) {
-    console.warn('No writeups found or error fetching from GitHub.');
-    return;
-  }
+  async populateWriteups() {
+    // Fetch writeups from GitHub
+    const writeups = await fetchWriteupsFromGitHub();
+    if (writeups.length === 0) {
+      console.warn('No writeups found or error fetching from GitHub.');
+      return;
+    }
 
-  this.writeupsData = writeups;
+    this.writeupsData = writeups;
 
-  const tbody = document.querySelector('.writeups-table tbody');
+    const tbody = document.querySelector('.writeups-table tbody');
 
-  tbody.innerHTML = writeups.map(writeup => `
+    tbody.innerHTML = writeups.map(writeup => `
     <tr>
       <td>
         <a href="/writeups.html?file=${encodeURIComponent(writeup.filename)}" class="challenge-link">
@@ -391,42 +391,42 @@ async populateWriteups() {
     </tr>
   `).join('');
 
-  document.addEventListener("DOMContentLoaded", () => {
-    // Select all elements with the class 'link-icon'
-    const linkIcons = document.querySelectorAll(".link-icon");
-  
-    // Iterate through each icon and set its color to white
-    linkIcons.forEach((icon) => {
-      icon.style.fill = "#FFFFFF"; // For SVG icons
-      icon.style.color = "#FFFFFF"; // For other types of icons
+    document.addEventListener("DOMContentLoaded", () => {
+      // Select all elements with the class 'link-icon'
+      const linkIcons = document.querySelectorAll(".link-icon");
+
+      // Iterate through each icon and set its color to white
+      linkIcons.forEach((icon) => {
+        icon.style.fill = "#FFFFFF"; // For SVG icons
+        icon.style.color = "#FFFFFF"; // For other types of icons
+      });
+
+      console.log("Link icon colors updated to white.");
     });
-  
-    console.log("Link icon colors updated to white.");
-  });  
-  
-  // Reinitialize search for the writeups table after populating data
-  this.initSearch(this.tables.writeups);
-}
+
+    // Reinitialize search for the writeups table after populating data
+    this.initSearch(this.tables.writeups);
+  }
 };
 
 // Navigation functionality
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
   const navLinks = document.querySelectorAll('nav a');
   const contentSections = document.querySelectorAll('.content-section');
-  
+
   // Function to activate a specific section
   function activateSection(sectionId) {
     // Remove active class from all links and sections
     navLinks.forEach(navLink => navLink.classList.remove('active'));
     contentSections.forEach(section => section.classList.remove('active'));
-    
+
     // Activate the target section
     const targetSection = document.getElementById(sectionId);
     const targetLink = document.querySelector(`nav a[data-section="${sectionId}"]`);
-    
+
     if (targetSection) targetSection.classList.add('active');
     if (targetLink) targetLink.classList.add('active');
-    
+
     // Update URL hash without scrolling
     history.replaceState(null, null, `#${sectionId}`);
   }
@@ -437,7 +437,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (document.getElementById(hashSectionId)) {
       activateSection(hashSectionId);
     }
-  } 
+  }
   // Then check stored section from sessionStorage
   else {
     const storedActiveSection = sessionStorage.getItem('activeSection');
@@ -450,9 +450,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Add click event listeners to navigation links
   navLinks.forEach(link => {
-    link.addEventListener('click', function(e) {
+    link.addEventListener('click', function (e) {
       e.preventDefault();
-      
+
       // Get the section to show
       const sectionId = this.getAttribute('data-section');
       activateSection(sectionId);
@@ -476,33 +476,109 @@ document.addEventListener('DOMContentLoaded', function () {
   // Sample team members data
   const teamMembers = [
     {
-      name: 'Team Member 1',
-      role: 'Web Exploitation Expert',
-      bio: 'Specialized in finding and exploiting web vulnerabilities. Has 5+ years of experience in CTF competitions with expertise in XSS, CSRF, SQL injection, and more.',
-      categories: ['Web Exploitation', 'API Security', 'OWASP Top 10'],
-      socials: ['github', 'twitter', 'linkedin']
+    name: "VivisGhost",
+      role: "Forensics and Misc Challenges Expert",
+      bio: "Ghost in the Box — Acclimated to the arcane. Brain broken by bad binaries. Cursed by stego. Hexes come encoded — half-off if they're haunted.",
+      categories: ["Forensics", "Misc"],
+      socials: ["https://github.com/dbissell6/DFIR/tree/main"],
+      image: "VivisGhost.png",
     },
     {
-      name: 'Team Member 2',
-      role: 'Reverse Engineering Specialist',
-      bio: 'Expert in disassembling and analyzing binaries. Proficient with tools like IDA Pro, Ghidra, and radare2. Specializes in malware analysis and binary exploitation.',
-      categories: ['Reverse Engineering', 'Binary Exploitation', 'Malware Analysis'],
-      socials: ['github', 'discord', 'linkedin']
+      name: "sk4r3kr0w",
+      role: "OSINT and Web Expert",
+      bio: "Im like an old program, prone to memory leaks and buffer overflows.",
+      categories: ["OSINT", "Web"],
+      socials: [],
+      image: "sk4r3kr0w.jpeg",
     },
     {
-      name: 'Team Member 3',
-      role: 'Cryptography Wizard',
-      bio: 'Mathematics background with focus on modern cryptographic algorithms. Experienced in breaking weak encryption implementations and solving complex crypto challenges.',
-      categories: ['Cryptography', 'Mathematics', 'Algorithm Design'],
-      socials: ['github', 'twitter', 'website']
+      name: "S1nC0s134",
+      role: "Web and Crypto Specialist",
+      bio: "The Spider-Man of Web challenges, weaving through vulnerabilities with ease. Crypto is his passion, but binaries? His kryptonite.",
+      categories: ["Cryptography", "Web"],
+      socials: ["www.linkedin.com/in/tanish-sancheti"],
+      image: "S1nC0s134.jpg",
     },
     {
-      name: 'Team Member 4',
-      role: 'Forensics Investigator',
-      bio: 'Digital forensics expert specializing in memory analysis, disk forensics, and network traffic analysis. Skilled with tools like Volatility, Wireshark, and Autopsy.',
-      categories: ['Digital Forensics', 'Memory Analysis', 'Network Forensics'],
-      socials: ['github', 'linkedin', 'discord']
-    }
+      name: "maomaofan",
+      role: "Forensics and OSINT Specialist",
+      bio: "4n6 wannabee, uses HxD for memdump and disk challenges, big fan of 0x157",
+      categories: ["Forensics", "OSINT"],
+      socials: ["https://medium.com/@nathanielpascuarijndorp"],
+      image: "maomaofan.jpg",
+      },
+      {
+      name: "pphreak_1001",
+      role: "Pattern Recognition Specialist",
+      bio: "His keen eye sees patterns where others see chaos.",
+      categories: ["OSINT", "Web"],
+      socials: [],
+      image: "pphreak_1001.jpeg",
+      },
+      {
+      name: "NoobHackBot",
+      role: "Web Security Enthusiast",
+      bio: "Specializes in web, until an encryption pops up. By then he just prays that it's just base64...",
+      categories: ["Web"],
+      socials: [],
+      image: "NoobHackBot.png",
+      },
+      {
+      name: "DxS",
+      role: "Binary Analysis Expert",
+      bio: "Breaks binaries. Rebuilds them just to break them better.",
+      categories: ["Pwn", "Rev"],
+      socials: ["https://www.linkedin.com/in/dellaili/"],
+      image: "DxS.png",
+      },
+      {
+      name: "GoblinPanda80",
+      role: "Crypto and Forensics Expert",
+      bio: "Forensic guru by day, crypto ninja by night.",
+      categories: ["Cryptography", "Forensics"],
+      socials: ["https://www.linkedin.com/in/filip-prodanovic-64728015a/"],
+      image: "GoblinPanda80.jpg",
+      },
+      {
+      name: "PEGAS0",
+      role: "Red Team and Forensics Analyst",
+      bio: "Red teamer by passion, forensic analyst by necessity—forever decrypting cursed stego and hunting flags in every CTF.",
+      categories: ["Forensics", "Misc"],
+      socials: [],
+      image: "PEGAS0.jpg",
+      },
+      {
+      name: "p._.k",
+      role: "Web and OSINT Specialist",
+      bio: "Professional curl user.",
+      categories: ["OSINT", "Web"],
+      socials: ["https://github.com/pradhamk"],
+      image: "pk.png",
+      },
+      {
+      name: "g2f1",
+      role: "Cryptography and Forensics Expert",
+      bio: "A seeker of secrets, best known for cracking the Z13",
+      categories: ["Cryptography", "Forensics"],
+      socials: ["https://g2f1.github.io/"],
+      image: "g2f1.jpg",
+      },
+      {
+      name: "vreshco",
+      role: "Forensics and Pwn Specialist",
+      bio: "Every byte has a story; every timestamp is a witness.",
+      categories: ["Forensics", "Pwn"],
+      socials: ["https://www.linkedin.com/in/nicsap/"],
+      image: "vreshco.jpg",
+      },
+      {
+      name: "mokab",
+      role: "Cryptography and Web Security Specialist",
+      bio: "It's not a bug, it's a way to get access",
+      categories: ["Cryptography", "Web"],
+      socials: ["https://github.com/kabirimouad"],
+      image: "mokab.jpg",
+      },
   ];
 
   // Clear existing content and create team member cards
@@ -513,7 +589,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     memberCard.innerHTML = `
           <div class="avatar">
-            <img src="placeholder-avatar-${index + 1}.png" alt="${member.name}" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'120\\' height=\\'120\\' viewBox=\\'0 0 120 120\\'><circle cx=\\'60\\' cy=\\'60\\' r=\\'50\\' fill=\\'%236366F1\\'/><text x=\\'50%\\' y=\\'50%\\' dominant-baseline=\\'middle\\' text-anchor=\\'middle\\' font-family=\\'Arial\\' font-size=\\'40\\' fill=\\'white\\'>${member.name.charAt(0)}</text></svg>'">
+            <img src="assets/${member.image}" alt="${member.name}" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'100\\' height=\\'100\\' viewBox=\\'0 0 100 100\\'><circle cx=\\'50\\' cy=\\'50\\' r=\\'45\\' fill=\\'%236366F1\\'/><text x=\\'50%\\' y=\\'50%\\' dominant-baseline=\\'middle\\' text-anchor=\\'middle\\' font-family=\\'Arial\\' font-size=\\'40\\' fill=\\'white\\'>${member.name.charAt(0)}</text></svg>'">
           </div>
           <h3>${member.name}</h3>
           <p>${member.role}</p>
@@ -544,20 +620,32 @@ document.addEventListener('DOMContentLoaded', function () {
     ).join('');
 
     // Create socials HTML
-    const socialsHTML = member.socials.map(social =>
-      `<a href="#" class="social-${social}" aria-label="${social}">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-              <use href="#icon-${social}"></use>
-            </svg>
-          </a>`
-    ).join('');
+  const socialsHTML = member.socials.map(social => {
+    let iconName;
+    if (social.includes('github')) {
+      iconName = 'github';
+    } else if (social.includes('linkedin')) {
+      iconName = 'linkedin-in';
+    } else if (social.includes('twitter')) {
+      iconName = 'twitter';
+    } else if (social.includes('medium')) {
+      iconName = 'medium-m'; // Adding Medium icon
+    } else {
+      iconName = 'link'; // Default fallback for other links
+    }
+    return `
+      <a href="${social}" target="_blank" class="social-link" aria-label="${iconName}">
+        <i class="fab fa-${iconName}"></i>
+      </a>
+    `;
+  }).join('');
 
     modal.innerHTML = `
           <div class="modal-content">
             <span class="close-modal">&times;</span>
             <div class="modal-header">
               <div class="modal-avatar">
-                <img src="placeholder-avatar-${teamMembers.indexOf(member) + 1}.png" alt="${member.name}" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'100\\' height=\\'100\\' viewBox=\\'0 0 100 100\\'><circle cx=\\'50\\' cy=\\'50\\' r=\\'45\\' fill=\\'%236366F1\\'/><text x=\\'50%\\' y=\\'50%\\' dominant-baseline=\\'middle\\' text-anchor=\\'middle\\' font-family=\\'Arial\\' font-size=\\'40\\' fill=\\'white\\'>${member.name.charAt(0)}</text></svg>'">
+                <img src="assets/${member.image}" alt="${member.name}" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'100\\' height=\\'100\\' viewBox=\\'0 0 100 100\\'><circle cx=\\'50\\' cy=\\'50\\' r=\\'45\\' fill=\\'%236366F1\\'/><text x=\\'50%\\' y=\\'50%\\' dominant-baseline=\\'middle\\' text-anchor=\\'middle\\' font-family=\\'Arial\\' font-size=\\'40\\' fill=\\'white\\'>${member.name.charAt(0)}</text></svg>'">
               </div>
               <div>
                 <h2>${member.name}</h2>
@@ -565,7 +653,6 @@ document.addEventListener('DOMContentLoaded', function () {
               </div>
             </div>
             <div class="modal-bio">
-              <h3>Bio</h3>
               <p>${member.bio}</p>
             </div>
             <div class="modal-categories">
