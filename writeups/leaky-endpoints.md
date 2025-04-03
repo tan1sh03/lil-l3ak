@@ -1,9 +1,9 @@
 ---
-challenge: "Cookie Monster"
-ctf_event: "HackerCTF Winter Edition"
+challenge: "Leaky Endpoints"
+ctf_event: "JerseyCTF 2025"
 category: "Web"
-author: "John Doe"
-date: "2025-01-15"
+author: "S1nC0s134"
+date: "15-01-2025"
 ---
 
 ![image](https://github.com/user-attachments/assets/1c084c01-ee75-4490-9baf-7469978bd88d)
