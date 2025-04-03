@@ -413,43 +413,49 @@ async populateWriteups() {
 document.addEventListener('DOMContentLoaded', function() {
   const navLinks = document.querySelectorAll('nav a');
   const contentSections = document.querySelectorAll('.content-section');
-
-  // Check if we have a stored active section from the writeup page
-  const storedActiveSection = sessionStorage.getItem('activeSection');
-  if (storedActiveSection) {
+  
+  // Function to activate a specific section
+  function activateSection(sectionId) {
     // Remove active class from all links and sections
     navLinks.forEach(navLink => navLink.classList.remove('active'));
     contentSections.forEach(section => section.classList.remove('active'));
     
-    // Activate the stored section
-    const targetSection = document.getElementById(storedActiveSection);
-    const targetLink = document.querySelector(`nav a[data-section="${storedActiveSection}"]`);
+    // Activate the target section
+    const targetSection = document.getElementById(sectionId);
+    const targetLink = document.querySelector(`nav a[data-section="${sectionId}"]`);
     
     if (targetSection) targetSection.classList.add('active');
     if (targetLink) targetLink.classList.add('active');
     
-    // Clear the stored section now that we've used it
-    sessionStorage.removeItem('activeSection');
+    // Update URL hash without scrolling
+    history.replaceState(null, null, `#${sectionId}`);
   }
 
+  // Check URL hash first (highest priority)
+  if (window.location.hash) {
+    const hashSectionId = window.location.hash.substring(1);
+    if (document.getElementById(hashSectionId)) {
+      activateSection(hashSectionId);
+    }
+  } 
+  // Then check stored section from sessionStorage
+  else {
+    const storedActiveSection = sessionStorage.getItem('activeSection');
+    if (storedActiveSection && document.getElementById(storedActiveSection)) {
+      activateSection(storedActiveSection);
+      // Clear the stored section now that we've used it
+      sessionStorage.removeItem('activeSection');
+    }
+  }
+
+  // Add click event listeners to navigation links
   navLinks.forEach(link => {
-    link.addEventListener('click', function (e) {
+    link.addEventListener('click', function(e) {
       e.preventDefault();
-
-      // Remove active class from all links
-      navLinks.forEach(navLink => navLink.classList.remove('active'));
-
-      // Add active class to clicked link
-      this.classList.add('active');
-
+      
       // Get the section to show
       const sectionId = this.getAttribute('data-section');
-
-      // Hide all sections
-      contentSections.forEach(section => section.classList.remove('active'));
-
-      // Show the selected section
-      document.getElementById(sectionId).classList.add('active');
+      activateSection(sectionId);
     });
   });
 });
