@@ -7,6 +7,22 @@ const githubConfig = {
   writeupPath: 'writeups'
 };
 
+// Check for hash in URL and activate corresponding section
+document.addEventListener('DOMContentLoaded', function() {
+  if (window.location.hash) {
+    const sectionId = window.location.hash.substring(1); // Remove the # character
+    const section = document.getElementById(sectionId);
+    if (section && section.classList.contains('content-section')) {
+      // Hide all sections
+      document.querySelectorAll('.content-section').forEach(s => {
+        s.classList.remove('active');
+      });
+      // Show the target section
+      section.classList.add('active');
+    }
+  }
+});
+
 function extractFrontmatter(content) {
   console.log('Raw Markdown Content:', content); // Debugging log
 
@@ -741,22 +757,25 @@ if (logoImg) {
 // Add this to the navigation functionality at the bottom of your file
 document.addEventListener("DOMContentLoaded", function () {
   function showSectionFromHash() {
-      let hash = window.location.hash || "#home"; // Default to home if no hash exists
+      let hash = window.location.hash || "#home"; // Default to #home if no hash exists
       let section = document.querySelector(hash);
 
       if (section) {
-          document.querySelectorAll(".content-section").forEach(sec => sec.classList.remove("active"));
-          section.classList.add("active");
+          // Hide all sections
+          document.querySelectorAll(".content-section").forEach(sec => sec.style.display = "none");
+
+          // Show the targeted section
+          section.style.display = "block";
       }
   }
 
   // Handle navigation clicks
   document.querySelectorAll("nav a").forEach(link => {
       link.addEventListener("click", function (event) {
-          event.preventDefault(); // Prevent default link behavior
+          event.preventDefault(); // Prevent full-page reload
           let targetId = this.getAttribute("href");
           window.location.hash = targetId; // Change URL hash
-          showSectionFromHash(); // Update section immediately
+          showSectionFromHash(); // Show the correct section
       });
   });
 
@@ -766,7 +785,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // Initial check on page load
   showSectionFromHash();
 
-  tableSystem.init = async function() {
+tableSystem.init = async function() {
     for (const tableId in this.tables) {
       const config = this.tables[tableId];
       await this.setupTable(config);
