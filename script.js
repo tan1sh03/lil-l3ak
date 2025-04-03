@@ -739,39 +739,33 @@ if (logoImg) {
 }
 
 // Add this to the navigation functionality at the bottom of your file
-document.addEventListener('DOMContentLoaded', function() {
-  const navLinks = document.querySelectorAll('nav a');
-  const contentSections = document.querySelectorAll('.content-section');
+document.addEventListener("DOMContentLoaded", function () {
+  function showSectionFromHash() {
+      let hash = window.location.hash || "#home"; // Default to home if no hash exists
+      let section = document.querySelector(hash);
 
-  navLinks.forEach(link => {
-    link.addEventListener('click', function (e) {
-      e.preventDefault();
-
-      // Remove active class from all links
-      navLinks.forEach(navLink => navLink.classList.remove('active'));
-
-      // Add active class to clicked link
-      this.classList.add('active');
-
-      // Get the section to show
-      const sectionId = this.getAttribute('data-section');
-
-      // Hide all sections
-      contentSections.forEach(section => section.classList.remove('active'));
-
-      // Show the selected section
-      document.getElementById(sectionId).classList.add('active');
-      
-      // Re-sort tables when their section is activated
-      if (sectionId === 'scores') {
-        tableSystem.sortTable(tableSystem.tables.scores, tableSystem.tables.scores.defaultSort, 'desc');
-      } else if (sectionId === 'writeups') {
-        tableSystem.sortTable(tableSystem.tables.writeups, tableSystem.tables.writeups.defaultSort, 'desc');
+      if (section) {
+          document.querySelectorAll(".content-section").forEach(sec => sec.classList.remove("active"));
+          section.classList.add("active");
       }
-    });
+  }
+
+  // Handle navigation clicks
+  document.querySelectorAll("nav a").forEach(link => {
+      link.addEventListener("click", function (event) {
+          event.preventDefault(); // Prevent default link behavior
+          let targetId = this.getAttribute("href");
+          window.location.hash = targetId; // Change URL hash
+          showSectionFromHash(); // Update section immediately
+      });
   });
-  
-  // Also apply default sorting right after initial table population
+
+  // Handle back/forward navigation
+  window.addEventListener("popstate", showSectionFromHash);
+
+  // Initial check on page load
+  showSectionFromHash();
+
   tableSystem.init = async function() {
     for (const tableId in this.tables) {
       const config = this.tables[tableId];
@@ -782,4 +776,5 @@ document.addEventListener('DOMContentLoaded', function() {
       this.sortTable(config, config.defaultSort, 'desc');
     }
   };
+
 });
