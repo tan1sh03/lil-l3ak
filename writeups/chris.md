@@ -1,9 +1,9 @@
 ---
-challenge: "Cookiawdade Monster"
-ctf_event: "HacwdwadkerCTF Winter Edition"
-category: "Wwdeb"
-author: "Johwdawdn Doe"
-date: "2025-01-15"
+challenge: "Sample Challenge"
+ctf_event: "PicoCTF 2025"
+category: "OSINT"
+author: "Mary Jane"
+date: "2025-01-18"
 ---
 
 ## Challenge Description
