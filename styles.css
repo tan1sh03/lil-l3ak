@@ -1173,7 +1173,7 @@ table {
   }
   
   /* Submit Button */
-  button[type="submit"] {
+    .ctf-form button[type="submit"] {
     display: inline-block;
     background-color: var(--button);
     color: var(--button-text);
@@ -1185,7 +1185,7 @@ table {
     transition: all 0.3s ease-in-out;
   }
   
-  button[type="submit"]:hover {
+  .ctf-form button[type="submit"]:hover {
     background-color: var(--secondary); /* Change color on hover */
   }
     
@@ -1255,3 +1255,43 @@ table {
     margin-bottom: 0;
     display: inline-block;
   }
+
+  /* Main Category Checkboxes */
+#mainCategoryCheckboxes label {
+    color: var(--text); /* Set text color to white */
+  }
+  
+  #mainCategoryCheckboxes input[type="checkbox"] {
+    margin-right: 0.5rem; /* Add space between checkbox and text */
+  }
+  
+  /* Categories Table */
+.categories-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+  
+  .categories-table th,
+  .categories-table td {
+    text-align: center;
+    padding: 0.75rem;
+    vertical-align: middle; /* Aligns text and radio buttons vertically */
+  }
+  
+  .categories-table th {
+    background-color: var(--hover);
+    color: var(--primary);
+    font-weight: bold;
+  }
+  
+  .categories-table td:first-child {
+    text-align: left; /* Align category names to the left */
+  }
+  
+  .categories-table input[type="radio"] {
+    width: 20px; /* Increase the size of the radio button */
+    height: 20px; /* Increase the size of the radio button */
+    cursor: pointer; /* Add a pointer cursor for better UX */
+  }
+  

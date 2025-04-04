@@ -122,11 +122,11 @@ document.addEventListener('DOMContentLoaded', function() {
           }
           
           // Validate writeups
-          const writeups = document.getElementById('writeups').value;
-          if (!writeups) {
-              alert('Please provide examples of your writeups or code.');
-              return;
-          }
+const writeups = document.getElementById('writeups').value.trim();
+if (!writeups || writeups.length === 0) {
+    alert('Please provide examples of your writeups or code.');
+    return;
+}
           
           // Validate social links
           const socialLinks = document.getElementById('socialLinks').value;
