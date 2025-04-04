@@ -264,6 +264,121 @@
                     </div>
                 </footer>
         </div>
+        <script>
+(function() {
+  // Add category styles directly to the page
+  const styleEl = document.createElement('style');
+  styleEl.innerHTML = `
+    
+    .team-member {
+      position: relative;
+      overflow: visible !important;
+      padding-bottom: 2.5rem !important;
+    }
+    
+    .team-member .member-categories {
+      position: absolute;
+      bottom: 0.5rem;
+      left: 0;
+      width: 100%;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.25rem;
+      padding: 0 0.5rem;
+    }
+    
+    .team-member .category-tag {
+      padding: 0.15rem 0.5rem;
+      font-size: 0.65rem;
+    }
+  `;
+  document.head.appendChild(styleEl);
+  
+  // Function to apply category styling
+  function applyCategoryStyles() {
+    // Apply to team member categories
+    if (window.teamMembers) {
+      const teamCards = document.querySelectorAll('.team-member');
+      teamCards.forEach((card, index) => {
+        const member = window.teamMembers[index];
+        if (member && member.categories && !card.querySelector('.member-categories')) {
+          const categoriesDiv = document.createElement('div');
+          categoriesDiv.className = 'member-categories';
+          
+          member.categories.forEach(category => {
+            const tagSpan = document.createElement('span');
+            tagSpan.className = `category-tag category-${category}`;
+            tagSpan.textContent = category;
+            categoriesDiv.appendChild(tagSpan);
+          });
+          
+          card.appendChild(categoriesDiv);
+        }
+      });
+    }
+    
+    // Apply to modal categories
+    document.querySelectorAll('.modal-categories .category-tags span').forEach(span => {
+      const category = span.textContent.trim();
+      if (!span.classList.contains(`category-${category}`)) {
+        span.className = `category-tag category-${category}`;
+      }
+    });
+    
+    // Apply to writeups table
+    document.querySelectorAll('.writeups-table td:nth-child(3)').forEach(cell => {
+      if (!cell.querySelector('.category-tag')) {
+        const category = cell.textContent.trim();
+        cell.innerHTML = `<span class="category-tag category-${category}">${category}</span>`;
+      }
+    });
+  }
+  
+  // Initial application with delay to ensure DOM is loaded
+  setTimeout(applyCategoryStyles, 1000);
+  
+  // Re-apply on navigation
+  document.querySelectorAll('nav a').forEach(link => {
+    link.addEventListener('click', () => setTimeout(applyCategoryStyles, 500));
+  });
+  
+  // Original openTeamModal function override
+  if (typeof window.openTeamModal === 'function') {
+    const originalOpenModal = window.openTeamModal;
+    window.openTeamModal = function(member) {
+      originalOpenModal(member);
+      setTimeout(() => {
+        document.querySelectorAll('.modal-categories .category-tags span').forEach(span => {
+          const category = span.textContent.trim();
+          span.className = `category-tag category-${category}`;
+        });
+      }, 50);
+    };
+  }
+  
+  // Set up observer for dynamic content
+  const observer = new MutationObserver(() => {
+    setTimeout(applyCategoryStyles, 100);
+  });
+  
+  // Start observing after a delay
+  setTimeout(() => {
+    const containers = [
+      document.querySelector('.team-grid'),
+      document.querySelector('.writeups-table'),
+      document.querySelector('.team-modal')
+    ].filter(Boolean);
+    
+    containers.forEach(container => {
+      observer.observe(container, { childList: true, subtree: true });
+    });
+  }, 1500);
+  
+  // Re-apply styles periodically for safety
+  setInterval(applyCategoryStyles, 3000);
+})();
+</script>
 </body>
 
 </html>

@@ -844,15 +844,17 @@ p{
 }
 
 .category-tag {
-    background-color: var(--primary);
-    color: var(--button-text);
-    padding: 0.25rem 0.75rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.3rem 0.8rem;
     border-radius: 20px;
     font-size: 1rem;
-    display: inline-block;
-    margin-right: 0.9rem;
+    font-weight: 600;
+    margin-right: 0.5rem;
     margin-bottom: 0.5rem;
-}
+    color: #fff !important;
+  }
 
 .category-tags {
     margin-top: 0.5rem;
@@ -1295,3 +1297,85 @@ table {
     cursor: pointer; /* Add a pointer cursor for better UX */
   }
   
+.category-tag:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+  
+  /* Category Colors */
+.category-Web, .category-Web-Exploitation {
+    background-color: #E63946 !important; /* Strong Red */
+    color: white;
+  }
+  
+  .category-Crypto, .category-Cryptography {
+    background-color: #8E44AD !important; /* Deep Purple */
+    color: white;
+  }
+  
+  .category-Forensics {
+    background-color: #2ECC71 !important; /* Bright Green */
+    color: white;
+  }
+  
+  .category-OSINT {
+    background-color: #F39C12 !important; /* Golden Orange */
+    color: white;
+  }
+  
+  .category-Pwn {
+    background-color: #FF4757 !important; /* Fiery Coral (Distinct from Web) */
+    color: white;
+  }
+  
+  .category-Rev {
+    background-color: #1ABC9C !important; /* Vibrant Teal */
+    color: white;
+  }
+  
+  .category-Misc {
+    background-color: #7F8C8D !important; /* Neutral Gray */
+    color: white;
+  }
+  
+  
+  /* Team Member Cards Category Styling */
+  
+  .team-member .member-categories {
+    position: absolute;
+    bottom: 0.5rem;
+    left: 0;
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.25rem;
+    padding: 0 0.5rem;
+  }
+  
+  .team-member .category-tag {
+    padding: 0.15rem 0.5rem;
+    font-size: 0.65rem;
+    white-space: nowrap;
+  }
+  
+  /* Modal Category Styling */
+  .modal-categories .category-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+  }
+  
+  /* Writeups Table Category Styling */
+  .writeups-table td .category-tag {
+    white-space: nowrap;
+    display: inline-block;
+    text-align: center;
+  }
+  
+  /* Make sure the tags don't overflow */
+  .writeups-table td {
+    max-width: 150px;
+    overflow: visible;
+  }

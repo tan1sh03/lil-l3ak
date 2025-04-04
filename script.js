@@ -1,3 +1,8 @@
+// Disable scroll restoration and reset scroll position
+if ('scrollRestoration' in history) {
+  history.scrollRestoration = 'manual';
+}
+window.scrollTo(0, 0);
 
 // GitHub integration for writeups
 const githubConfig = {
@@ -11,7 +16,7 @@ const githubConfig = {
 document.addEventListener('DOMContentLoaded', function() {
   // Define CTF categories
   const categories = [
-      'Crypto', 'Rev', 'Pwn', 'Web', 'Misc', 
+      'Crypto', 'Rev', 'Pwn', 'Web Exploitation Exploitation', 'Misc', 
       'OSINT', 'Forensics', 'Blockchain', 'RF/Hardware'
   ];
   
@@ -630,15 +635,15 @@ document.addEventListener('DOMContentLoaded', function () {
       name: "sk4r3kr0w",
       role: "Team Captain",
       bio: "Im like an old program, prone to memory leaks and buffer overflows.",
-      categories: ["OSINT", "Web"],
+      categories: ["OSINT", "Web Exploitation"],
       socials: [],
       image: "sk4r3kr0w.jpeg",
     },
     {
       name: "S1nC0s134",
-      role: "Web and Crypto Specialist",
+      role: "Web Exploitation and Crypto Specialist",
       bio: "The Spider-Man of Web challenges, weaving through vulnerabilities with ease. Crypto is his passion, but binaries? His kryptonite.",
-      categories: ["Cryptography", "Web"],
+      categories: ["Cryptography", "Web Exploitation"],
       socials: ["https://linkedin.com/in/tanish-sancheti"],
       image: "S1nC0s134.jpg",
     },
@@ -654,15 +659,15 @@ document.addEventListener('DOMContentLoaded', function () {
       name: "pphreak_1001",
       role: "Pattern Recognition Specialist",
       bio: "His keen eye sees patterns where others see chaos.",
-      categories: ["OSINT", "Web"],
+      categories: ["OSINT", "Web Exploitation"],
       socials: [],
       image: "pphreak_1001.jpeg",
       },
       {
       name: "NoobHackBot",
-      role: "Web Security Enthusiast",
+      role: "Web Exploitation Security Enthusiast",
       bio: "Specializes in web, until an encryption pops up. By then he just prays that it's just base64...",
-      categories: ["Web"],
+      categories: ["Web Exploitation"],
       socials: [],
       image: "NoobHackBot.png",
       },
@@ -692,9 +697,9 @@ document.addEventListener('DOMContentLoaded', function () {
       },
       {
       name: "p._.k",
-      role: "Web and OSINT Specialist",
+      role: "Web Exploitation and OSINT Specialist",
       bio: "Professional curl user.",
-      categories: ["OSINT", "Web"],
+      categories: ["OSINT", "Web Exploitation"],
       socials: ["https://github.com/pradhamk"],
       image: "pk.png",
       },
@@ -716,9 +721,9 @@ document.addEventListener('DOMContentLoaded', function () {
       },
       {
       name: "mokab",
-      role: "Cryptography and Web Security Specialist",
+      role: "Cryptography and Web Exploitation Security Specialist",
       bio: "It's not a bug, it's a way to get access",
-      categories: ["Cryptography", "Web"],
+      categories: ["Cryptography", "Web Exploitation"],
       socials: ["https://github.com/kabirimouad"],
       image: "mokab.jpg",
       },
@@ -1000,3 +1005,4 @@ document.getElementById('joinForm').addEventListener('submit', function (e) {
   
    formData.forEach((value, key) => data[key] = value)
 });
+
