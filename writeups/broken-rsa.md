@@ -1,7 +1,7 @@
 ---
-challenge: "Cookiawdade Monster"
+challenge: "Cookie Monster"
 ctf_event: "HacwdwadkerCTF Winter Edition"
-category: "Wwdeb"
+category: "Crypto"
 author: "Johwdawdn Doe"
 date: "2025-01-15"
 ---
