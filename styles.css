@@ -287,6 +287,7 @@ nav a.active {
 .content-wrapper {
     flex: 1;
     padding: 2rem;
+    padding-bottom: 4rem;
     overflow-y: auto;
 }
 
@@ -590,51 +591,42 @@ th .sort-arrow {
     margin-top: 1rem;
 }
 
-/* Footer */
-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: var(--card-bg);
-    border-top: 1px solid var(--border);
-    font-size: 0.875rem;
-    padding: 1rem;
-    text-align: center;
+/* Footer */footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--card-bg);
+  border-top: 1px solid var(--border);
+  padding: 1.5rem 2rem; /* Add padding for better spacing */
+  font-size: 0.875rem;
 }
 
-/* Update the social-icons style for the footer */
 footer .social-icons {
-    display: flex;
-    justify-content: center;
-    gap: 1.5rem;
-    width: 100%;
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem; /* Space between icons */
 }
 
 footer .social-icons a {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 48px;
-    /* Larger icons */
-    height: 48px;
-    /* Larger icons */
-    border-radius: 50%;
-    background-color: var(--hover);
-    color: var(--text);
-    transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px; /* Larger clickable area */
+  height: 48px; /* Larger clickable area */
+  border-radius: 50%;
+  background-color: var(--hover);
+  color: var(--text);
+  transition: all 0.3s ease-in-out;
 }
 
 footer .social-icons a:hover {
-    background-color: var(--primary);
-    color: var(--button-text);
-    transform: translateY(-3px);
+  background-color: var(--primary); /* Highlight on hover */
+  color: var(--button-text); /* Change icon color on hover */
 }
 
 footer .social-icons svg {
-    width: 28px;
-    /* Larger SVG icons */
-    height: 28px;
-    /* Larger SVG icons */
+  width: 24px; /* Icon size */
+  height: 24px; /* Icon size */
 }
 
 ::-webkit-scrollbar {
@@ -1101,4 +1093,165 @@ table {
   .modal-socials h3 {
     margin-bottom: 0.75rem; /* Add space below the "Expertise" and "Connect" headings */
   }
+
   
+ /* Join Form Container */
+.ctf-form {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 2.5rem;
+    background-color: var(--card-bg);
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* Add shadow for depth */
+  }
+  
+  /* Form Group (Spacing and Alignment) */
+  .form-group {
+    margin-bottom: 2rem; /* Increased spacing for better readability */
+  }
+  
+  /* Labels */
+  .form-group label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 0.75rem; /* Add more space below labels */
+    color: var(--primary); /* Highlight labels with primary color */
+  }
+  
+  /* Input Fields */
+  .form-group input,
+  .form-group textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background-color: var(--hover);
+    color: var(--text);
+    font-size: 1rem;
+  }
+  
+  .form-group input:focus,
+  .form-group textarea:focus {
+    outline: none;
+    border-color: var(--primary); /* Highlight input on focus */
+  }
+  
+  /* Categories Table */
+  .categories-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .categories-table th,
+  .categories-table td {
+    text-align: center;
+    padding: 0.75rem;
+  }
+  
+  .categories-table th {
+    background-color: var(--hover);
+    color: var(--primary);
+    font-weight: bold;
+  }
+  
+  .categories-table tr:nth-child(even) {
+    background-color: var(--hover); /* Alternating row colors */
+  }
+  
+  .categories-table tr:hover {
+    background-color: rgba(99,102,241,0.1); /* Subtle hover effect */
+  }
+  
+  /* Main Category Checkboxes */
+  #mainCategoryCheckboxes label {
+    display: inline-block;
+    margin-right: 1rem;
+  }
+  
+  #mainCategoryCheckboxes input[type="checkbox"] {
+    margin-right: 0.5rem; /* Space between checkbox and text */
+  }
+  
+  /* Submit Button */
+  button[type="submit"] {
+    display: inline-block;
+    background-color: var(--button);
+    color: var(--button-text);
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    font-weight: bold;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+  }
+  
+  button[type="submit"]:hover {
+    background-color: var(--secondary); /* Change color on hover */
+  }
+    
+  /* Responsive Design for Smaller Screens */
+@media (max-width: 768px) {
+    .ctf-form {
+      padding: 1.5rem; /* Reduce padding for smaller screens */
+    }
+  
+    .form-group {
+      margin-bottom: 1rem; /* Reduce spacing between form groups */
+    }
+  
+    .categories-table th,
+    .categories-table td {
+      padding: 0.5rem; /* Reduce padding inside the table cells */
+      font-size: 0.9rem; /* Adjust font size for smaller screens */
+    }
+  
+    #mainCategoryCheckboxes label {
+      display: block; /* Stack checkboxes vertically */
+      margin-bottom: 0.5rem;
+    }
+  
+    button[type="submit"] {
+      width: 100%; /* Make the button full width on smaller screens */
+      font-size: 1rem; /* Adjust font size */
+      padding: 0.75rem; /* Adjust padding */
+    }
+  }
+  
+  @media (max-width: 576px) {
+    .ctf-form {
+      padding: 1rem; /* Further reduce padding for very small screens */
+      border-radius: 8px; /* Adjust border radius */
+    }
+  
+    .categories-table th,
+    .categories-table td {
+      font-size: 0.8rem; /* Further adjust font size for very small screens */
+    }
+  
+    #mainCategoryCheckboxes label {
+      margin-bottom: 0.25rem; /* Reduce spacing between checkboxes */
+      font-size: 0.9rem; /* Adjust font size of labels */
+    }
+  }
+
+  /* Main Category Checkboxes Alignment */
+#mainCategoryCheckboxes {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .checkbox-container {
+    display: flex;
+    align-items: center;
+  }
+  
+  .checkbox-container input[type="checkbox"] {
+    width: auto;
+    margin-right: 10px;
+  }
+  
+  .checkbox-container label {
+    margin-bottom: 0;
+    display: inline-block;
+  }

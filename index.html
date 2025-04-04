@@ -171,42 +171,98 @@
                     </div>
                 </section>
 
-                <!-- Join Team Section -->
+                <!-- Replace the existing join section with this updated HTML -->
                 <section id="join" class="content-section">
-                    <h2>Join Lil L3ak</h2>
-                    <p>Interested in joining our CTF team? Here's how to get started!</p>
+                    <div class="container">
+                        <h2>Join Lil L3ak</h2>
+                        <p>We're seeking dedicated and skilled individuals to join us for upcoming competitions. If you
+                            thrive competing at a high level, then we want to hear from you.</p>
 
-                    <div class="card">
-                        <h3>Requirements</h3>
-                        <ul>
-                            <li>Interest in cybersecurity and CTF competitions</li>
-                            <li>Willingness to learn and collaborate</li>
-                            <li>Any skill level is welcome - we have beginner trainings!</li>
-                        </ul>
-                    </div>
+                        <form id="joinForm" class="ctf-form">
+                            <!-- Age -->
+                            <div class="form-group">
+                                <label for="age">What is your age? *</label>
+                                <input type="number" id="age" name="age" placeholder="Your answer" required>
+                            </div>
 
-                    <div class="card">
-                        <h3>How to Join</h3>
-                        <p>Our meetings and trainings are open to everyone. Feel free to join our Discord server to get
-                            started!</p>
-                        <a href="#" class="button">Join Our Discord</a>
+                            <!-- Country -->
+                            <div class="form-group">
+                                <label for="country">What country are you from? *</label>
+                                <input type="text" id="country" name="country" placeholder="Your answer" required>
+                            </div>
+
+                            <!-- Categories -->
+                            <div class="form-group">
+                                <label>What categories do you play? *</label>
+                                <table class="categories-table" id="categoriesTable">
+                                    <!-- Table will be populated by JavaScript -->
+                                </table>
+                            </div>
+
+                            <!-- Main Category -->
+                            <div class="form-group">
+                                <label for="mainCategory">What is your main category? (Select up to 2) *</label>
+                                <div id="mainCategoryCheckboxes">
+                                    <!-- Checkboxes will be populated by JavaScript -->
+                                </div>
+                            </div>
+
+                            <!-- Number of CTFs -->
+                            <div class="form-group">
+                                <label for="ctfCount">Approximately how many CTFs have you played? *</label>
+                                <input type="number" id="ctfCount" name="ctfCount" placeholder="Your answer" required>
+                            </div>
+
+                            <!-- Commitment -->
+                            <div class="form-group">
+                                <label for="commitment">Are you prepared to commit to playing CTFs on a weekly/biweekly
+                                    basis for the long term? *</label>
+                                <textarea id="commitment" name="commitment" placeholder="Your answer"
+                                    required></textarea>
+                            </div>
+
+                            <!-- Writeups -->
+                            <div class="form-group">
+                                <label for="writeups">Please send your writeups/code for the hardest CTF challenges you
+                                    have solved. *</label>
+                                <textarea id="writeups" name="writeups" placeholder="Your answer" required></textarea>
+                            </div>
+
+                            <!-- Social Links -->
+                            <div class="form-group">
+                                <label for="socialLinks">Please link your Github, personal website, blog, HackTheBox
+                                    account, or any other relevant platforms or socials. *</label>
+                                <input type="text" id="socialLinks" name="socialLinks" placeholder="Your answer"
+                                    required>
+                            </div>
+
+                            <!-- Discord Handle -->
+                            <div class="form-group">
+                                <label for="discordHandle">Your Discord handle for contact: *</label>
+                                <input type="text" id="discordHandle" name="discordHandle" placeholder="@username#1234"
+                                    required>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <button type="submit">Submit Application</button>
+                        </form>
                     </div>
                 </section>
             </div>
-
             <!-- Footer -->
             <footer>
                 <div class="footer-content">
                     <div class="social-icons">
-                        <a href="#https://discord.gg/ZtFyCTDS" aria-label="Discord"><svg class="icon-discord" viewBox="0 0 24 24"></svg></a>
+                        <a href="#https://discord.gg/ZtFyCTDS" aria-label="Discord"><svg class="icon-discord"
+                                viewBox="0 0 24 24"></svg></a>
                         <a href="#" aria-label="Instagram"><svg class="icon-instagram" viewBox="0 0 24 24"></svg></a>
-                        <a href="#https://ctftime.org/team/373171" aria-label="CTFtime"><svg class="icon-ctftime" viewBox="0 0 24 24"></svg></a>
+                        <a href="#https://ctftime.org/team/373171" aria-label="CTFtime"><svg class="icon-ctftime"
+                                viewBox="0 0 24 24"></svg></a>
                         <a href="#" aria-label="X"><svg class="icon-x" viewBox="0 0 24 24"></svg></a>
                     </div>
                 </div>
             </footer>
         </div>
-    </div>
 </body>
 
 </html>

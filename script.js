@@ -7,6 +7,149 @@ const githubConfig = {
   writeupPath: 'writeups'
 };
 
+// Join Form Functionality
+document.addEventListener('DOMContentLoaded', function() {
+  // Define CTF categories
+  const categories = [
+      'Crypto', 'Rev', 'Pwn', 'Web', 'Misc', 
+      'OSINT', 'Forensics', 'Blockchain', 'RF/Hardware'
+  ];
+  
+  // Populate categories table
+  const categoriesTable = document.getElementById('categoriesTable');
+  if (categoriesTable) {
+      // Create table header
+      let headerRow = document.createElement('tr');
+      headerRow.innerHTML = `
+          <th></th>
+          <th>Beginner</th>
+          <th>Intermediate</th>
+          <th>Advanced</th>
+      `;
+      categoriesTable.appendChild(headerRow);
+      
+      // Create rows for each category
+      categories.forEach(category => {
+          let row = document.createElement('tr');
+          row.innerHTML = `
+              <td>${category}</td>
+              <td><input type="radio" name="${category}" value="Beginner"></td>
+              <td><input type="radio" name="${category}" value="Intermediate"></td>
+              <td><input type="radio" name="${category}" value="Advanced"></td>
+          `;
+          categoriesTable.appendChild(row);
+      });
+  }
+  
+  // Populate main category checkboxes
+  const mainCategoryCheckboxes = document.getElementById('mainCategoryCheckboxes');
+  if (mainCategoryCheckboxes) {
+      categories.forEach(category => {
+          let checkbox = document.createElement('div');
+          checkbox.className = 'checkbox-container';
+          checkbox.innerHTML = `
+              <input type="checkbox" id="main-${category}" name="mainCategory" value="${category}">
+              <label for="main-${category}">${category}</label>
+          `;
+          mainCategoryCheckboxes.appendChild(checkbox);
+      });
+      
+      // Limit main category selection to 2
+      const mainCategoryInputs = document.querySelectorAll('input[name="mainCategory"]');
+      mainCategoryInputs.forEach(input => {
+          input.addEventListener('change', function() {
+              let checkedCount = document.querySelectorAll('input[name="mainCategory"]:checked').length;
+              if (checkedCount > 2) {
+                  this.checked = false;
+                  alert('You can select a maximum of 2 main categories.');
+              }
+          });
+      });
+  }
+  
+  // Form submission
+  const joinForm = document.getElementById('joinForm');
+  if (joinForm) {
+      joinForm.addEventListener('submit', function(e) {
+          e.preventDefault();
+          
+          // Validate age
+          const age = document.getElementById('age').value;
+          if (!age || age < 13) {
+              alert('Please enter a valid age (13 or older).');
+              return;
+          }
+          
+          // Validate country
+          const country = document.getElementById('country').value;
+          if (!country) {
+              alert('Please enter your country.');
+              return;
+          }
+          
+          // Validate category selection
+          let categoriesSelected = false;
+          categories.forEach(category => {
+              if (document.querySelector(`input[name="${category}"]:checked`)) {
+                  categoriesSelected = true;
+              }
+          });
+          
+          if (!categoriesSelected) {
+              alert('Please select your skill level for at least one category.');
+              return;
+          }
+          
+          // Validate main category selection
+          const mainCategoriesSelected = document.querySelectorAll('input[name="mainCategory"]:checked').length;
+          if (mainCategoriesSelected === 0) {
+              alert('Please select at least one main category.');
+              return;
+          }
+          
+          // Validate CTF count
+          const ctfCount = document.getElementById('ctfCount').value;
+          if (!ctfCount || ctfCount < 0) {
+              alert('Please enter a valid number of CTFs played.');
+              return;
+          }
+          
+          // Validate commitment
+          const commitment = document.getElementById('commitment').value;
+          if (!commitment) {
+              alert('Please describe your commitment to playing CTFs.');
+              return;
+          }
+          
+          // Validate writeups
+          const writeups = document.getElementById('writeups').value;
+          if (!writeups) {
+              alert('Please provide examples of your writeups or code.');
+              return;
+          }
+          
+          // Validate social links
+          const socialLinks = document.getElementById('socialLinks').value;
+          if (!socialLinks) {
+              alert('Please provide at least one social link or platform.');
+              return;
+          }
+          
+          // Validate Discord handle
+          const discordHandle = document.getElementById('discordHandle').value;
+          if (!discordHandle) {
+              alert('Please provide your Discord handle for contact.');
+              return;
+          }
+          
+          // All validations passed
+          alert('Thank you for your application! We will review it and contact you soon via Discord.');
+          joinForm.reset();
+      });
+  }
+});
+
+
 // Check for hash in URL and activate corresponding section
 document.addEventListener('DOMContentLoaded', function () {
   if (window.location.hash) {
@@ -477,7 +620,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const teamMembers = [
     {
     name: "VivisGhost",
-      role: "Forensics and Misc Challenges Expert",
+      role: "Admin and Team Mentor",
       bio: "Ghost in the Box — Acclimated to the arcane. Brain broken by bad binaries. Cursed by stego. Hexes come encoded — half-off if they're haunted.",
       categories: ["Forensics", "Misc"],
       socials: ["https://github.com/dbissell6/DFIR/tree/main"],
@@ -485,7 +628,7 @@ document.addEventListener('DOMContentLoaded', function () {
     },
     {
       name: "sk4r3kr0w",
-      role: "OSINT and Web Expert",
+      role: "Team Captain",
       bio: "Im like an old program, prone to memory leaks and buffer overflows.",
       categories: ["OSINT", "Web"],
       socials: [],
@@ -846,3 +989,14 @@ const logoImg = document.querySelector('.logo img');
 if (logoImg) {
   logoImg.replaceWith(logoSvg);
 }
+
+document.getElementById('joinForm').addEventListener('submit', function (e) {
+  e.preventDefault();
+
+  // Collect Form Data
+  const formData = new FormData(this);
+  
+  const data = {};
+  
+   formData.forEach((value, key) => data[key] = value)
+});
