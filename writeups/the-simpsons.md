@@ -1,9 +1,9 @@
 ---
-challenge: "Leaky Endpoints"
-ctf_event: "JerseyCTF 2025"
-category: "Web"
+challenge: "The Simpsons"
+ctf_event: "Squ1rrel CTF 2025"
+category: "Cryptography"
 author: "S1nC0s134"
-date: "15-01-2025"
+date: "15-05-2025"
 ---
 
 ## The Simpsons
