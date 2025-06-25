@@ -13,7 +13,7 @@ The main idea finding the flag is finding the key through layers of encryption.
 #### Step-1:
 After I downloaded `ItsKrumpingTime.jpg`, I tried basic `strings ItsKrumpingTime.jpg` on it.
 
-<img src="ItsKrumpingTime.jpg">
+![download (4)](https://github.com/user-attachments/assets/04214d58-e1bb-42a2-abb0-baf4831ad3b3)
 
 #### Step-2:
 I got this output:
