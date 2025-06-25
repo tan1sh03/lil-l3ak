@@ -4,6 +4,7 @@ ctf_event: "Squ1rrel CTF 2025"
 category: "Cryptography"
 author: "S1nC0s134"
 date: "15-05-2025"
+description: "The main idea finding the flag is finding the key through layers of encryption."
 ---
 
 ## The Simpsons
